@@ -15,3 +15,12 @@ cd prototype
 # 또는
 npx serve .
 # python -m http.server 8080
+```
+
+---
+
+## License
+
+[MIT License](./LICENSE) — 이 레포의 소스 코드·문서에 적용됩니다.
+
+**The Orchestration** 게임 제목, 기획, 캐릭터·세계관 등 게임 IP는 별도 권리로 보호됩니다.
