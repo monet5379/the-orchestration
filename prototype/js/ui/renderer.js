@@ -120,7 +120,12 @@ export function render(state, save) {
   if (buttonPanel && buttonPanel.dataset.initialized === 'true') {
     const playable = isMatchActive(state) && state.phase !== PHASE.TIE_LOOT;
     if (playable) {
-      setButtonPanelEnabled(buttonPanel, state.phase, state.player);
+      setButtonPanelEnabled(
+        buttonPanel,
+        state.phase,
+        state.player,
+        state.playerAdjusted,
+      );
     } else {
       setButtonPanelEnabled(buttonPanel, '__disabled__', state.player);
     }
@@ -206,29 +211,17 @@ function renderPlayerDisplay(state) {
 
     const maskActive = isMaskInstinctActive(state);
     if (maskActive && state.player.activeItem !== ITEM.INSTINCT) {
-      if (state.instinctReading) {
-        return {
-          html: `${getMaskInstinctDisplayHtml(state.instinctReading)}<br>${statusLine}`,
-        };
-      }
-      if (!state.cpuAdjusted && !state.cpuBluffedThisTurn) {
-        return {
-          html: `<span class="instinct-reading instinct-reading--pending">[가면] 감지 중…</span><br>${statusLine}`,
-        };
-      }
+      const hint = state.instinctReading
+        ? getMaskInstinctDisplayHtml(state.instinctReading)
+        : '<span class="instinct-reading instinct-reading--pending">[가면] 감지 중…</span>';
+      return { html: `${hint}<br>${statusLine}` };
     }
 
     if (state.player.activeItem === ITEM.INSTINCT) {
-      if (state.instinctReading) {
-        return {
-          html: `${getInstinctDisplayHtml(state.instinctReading)}<br>${statusLine}`,
-        };
-      }
-      if (!state.cpuAdjusted && !state.cpuBluffedThisTurn) {
-        return {
-          html: `<span class="instinct-reading instinct-reading--pending">[본능] 감지 중…</span><br>${statusLine}`,
-        };
-      }
+      const hint = state.instinctReading
+        ? getInstinctDisplayHtml(state.instinctReading)
+        : '<span class="instinct-reading instinct-reading--pending">[본능] 감지 중…</span>';
+      return { html: `${hint}<br>${statusLine}` };
     }
 
     if (statusLine) {

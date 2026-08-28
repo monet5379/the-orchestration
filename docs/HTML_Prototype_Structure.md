@@ -1,7 +1,7 @@
 # The Orchestration — HTML 프로토타입 구조
 
 > **목적:** 핵심 게임 루프(1:1 턴제 심리전 + 5초 블러핑)와 로그라이크 메타(독방·가면·VHS)를 검증하기 위한 바닐라 HTML/JS 프로토타입  
-> **프로토타입 버전:** **v0.1.28** (Step 0~6 완료)  
+> **프로토타입 버전:** **v0.1.29** (Step 0~6 완료)  
 > **관련 기획:** [The_Orchestration_Game_Proposal.pptx.txt](./The_Orchestration_Game_Proposal.pptx.txt)  
 > **기획 vs 프로토타입:** [Proposal_vs_Prototype.md](./Proposal_vs_Prototype.md)
 
@@ -160,7 +160,7 @@ SELECT ──→ REVEAL ──→ ADJUST ──→ RESOLVE
 |---|---|---|---|
 | `SELECT` | 1. 동시 패 선택 | R/P/S (0.5s debounce 후 확정) | 초기 선택 |
 | `REVEAL` | 2. 상황 정보 노출 | 없음 | — |
-| `ADJUST` | 3. 5초 수정 & 블러핑 | `[유지]` / R/P/S / `[페이크]` | 변경·페이크 |
+| `ADJUST` | 3. 수정 & 블러핑 (최대 30s) | `[유지]` / R/P/S / `[페이크]` · **한 번 확정** | 변경·페이크 · 양측 완료 시 즉시 종료 |
 | `RESOLVE` | 4. 결과 공개 및 페널티 | 없음 | — |
 | `TIE_LOOT` | 무승부 아이템 | 선택 후 [획득] · 나 1 + CPU 1 | `pickTieItem` |
 
@@ -190,9 +190,10 @@ SELECT ──→ REVEAL ──→ ADJUST ──→ RESOLVE
   partialResult: 'winner_exists',
   lastResolve: { outcome, playerMove, opponentMove },
   cpuAdjusted: false,
+  playerAdjusted: false,  // false | 'kept' | 'changed' | 'bluffed'
   cpuBluffedThisTurn: false,
   instinctReading: null,
-  adjustTimerMs: 5000,
+  adjustTimerMs: 30000,
 
   matchLog: [],             // 문자열 (디버그 #event-log)
   replay: { events: [], matchStartMs },  // VHS용 구조화 로그
@@ -262,6 +263,9 @@ SELECT ──→ REVEAL ──→ ADJUST ──→ RESOLVE
 **ADJUST 연출 (v0.1.27):** `CPU_BLUFF`만 페이크 SFX + POV 플래시.  
 플레이어 `ADJUST_CHANGE` / `ADJUST_BLUFF`는 무음·무플래시. SELECT 패 선택은 금속음·플래시 유지.
 
+**ADJUST 확정 (v0.1.29):** 유지·변경·페이크는 턴당 **한 번**. 확정 후 버튼 전부 잠금 · 유효 패에 노란 테두리.  
+`playerAdjusted` + `cpuAdjusted`이면 `main.js`가 타이머를 끊고 즉시 `ADVANCE_TO_RESOLVE`.
+
 | 액션 | 발생 | 결과 |
 |---|---|---|
 | `START_MATCH` | [이어하기] / [새 게임] / [다시 하기] | match, SELECT, turn 1 |
@@ -270,8 +274,8 @@ SELECT ──→ REVEAL ──→ ADJUST ──→ RESOLVE
 | `FORCE_WIN` / `FORCE_LOSE` | 개발자 모드 치트 | 페널티 3/3 → cell / gameover |
 | `SELECT_MOVE` + `COMMIT_SELECT` | R/P/S + 0.5s | REVEAL |
 | `ENTER_ADJUST` | REVEAL 후 | ADJUST |
-| `ADJUST_*` / `CPU_*` | 수정·페이크 | ADJUST |
-| `ADVANCE_TO_RESOLVE` | ADJUST 종료 | RESOLVE |
+| `ADJUST_*` / `CPU_*` | 수정·페이크 (플레이어는 한 번만) | ADJUST · 양측 완료 시 즉시 RESOLVE |
+| `ADVANCE_TO_RESOLVE` | ADJUST 종료 (타이머 또는 조기) | RESOLVE |
 | `COMPLETE_RESOLVE` | RESOLVE 후 | 다음 턴 / TIE_LOOT / cell / gameover |
 | `TIE_PICK` | 아이템 획득 | SELECT |
 
@@ -320,7 +324,6 @@ TIE 아이템(`instinct` / `time_warp` / `rule_break`)은 **1턴**, 가면은 **
 
 - [ ] Playwright 안정화 (`smoke-menu.mjs` — ready 대기 권장)
 - [ ] 독방 꾸미기 / 메타 로어 / 탈옥 엔딩
-- [ ] SELECT 제한 시간 적용
 - [ ] 멀티플레이 PvP
 
 ---
@@ -351,6 +354,6 @@ ES Module·SFX fetch를 위해 **정적 서버 사용을 권장** (`file://` 비
 
 ---
 
-*문서 버전: 0.1.28 · 2026-08-28 · SELECT 60s · ADJUST 30s*  
+*문서 버전: 0.1.29 · 2026-08-29 · ADJUST commit-once · early resolve*  
 *프로토타입 이력: [`../prototype/ARCHIVE.md`](../prototype/ARCHIVE.md)*
 

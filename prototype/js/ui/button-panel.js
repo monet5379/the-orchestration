@@ -109,8 +109,9 @@ export function getAdjustTimerElement(container) {
  * @param {HTMLElement} container
  * @param {string} phase
  * @param {object} player
+ * @param {false | 'kept' | 'changed' | 'bluffed'} [playerAdjusted]
  */
-export function setButtonPanelEnabled(container, phase, player) {
+export function setButtonPanelEnabled(container, phase, player, playerAdjusted = false) {
   const adjustTimer = container.querySelector('#adjust-timer');
   const adjustRow = container.querySelector('#adjust-actions');
   const moveButtons = container.querySelectorAll('.move-btn');
@@ -120,6 +121,8 @@ export function setButtonPanelEnabled(container, phase, player) {
   const inSelect = phase === PHASE.SELECT;
   const inAdjust = phase === PHASE.ADJUST;
   const forceDisabled = phase === '__disabled__';
+  const committed = Boolean(playerAdjusted);
+  const current = player.finalChoice ?? player.choice;
 
   if (adjustTimer && (forceDisabled || (!inSelect && !inAdjust))) {
     adjustTimer.hidden = true;
@@ -130,25 +133,40 @@ export function setButtonPanelEnabled(container, phase, player) {
   }
 
   for (const btn of moveButtons) {
+    const showCommit =
+      inAdjust && !forceDisabled && committed && btn.dataset.move === current;
+    btn.classList.toggle('is-committed', showCommit);
+
     if (forceDisabled) {
       btn.disabled = true;
     } else if (inSelect) {
       btn.disabled = !canSelectMove(phase);
     } else if (inAdjust) {
-      const current = player.finalChoice ?? player.choice;
-      const canChange = canAdjustChange(phase, player);
-      btn.disabled = !canChange || btn.dataset.move === current;
+      if (committed) {
+        btn.disabled = true;
+      } else {
+        const canChange = canAdjustChange(phase, player, committed);
+        btn.disabled = !canChange || btn.dataset.move === current;
+      }
     } else {
       btn.disabled = true;
     }
   }
 
   if (confirmBtn) {
-    confirmBtn.disabled = forceDisabled || !canAdjustConfirm(phase);
+    confirmBtn.disabled = forceDisabled || !canAdjustConfirm(phase, committed);
+    confirmBtn.classList.toggle(
+      'is-committed',
+      inAdjust && !forceDisabled && playerAdjusted === 'kept',
+    );
   }
 
   if (bluffBtn) {
-    bluffBtn.disabled = forceDisabled || !canAdjustBluff(phase, player);
+    bluffBtn.disabled = forceDisabled || !canAdjustBluff(phase, player, committed);
+    bluffBtn.classList.toggle(
+      'is-committed',
+      inAdjust && !forceDisabled && playerAdjusted === 'bluffed',
+    );
   }
 }
 

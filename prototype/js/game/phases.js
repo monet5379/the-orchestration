@@ -7,8 +7,9 @@ import { createMatchState, createInitialState } from './state.js';
 import {
   DEFAULT_TIE_ITEMS,
   getItemLabel,
-  getInstinctReading,
+  getInstinctItemReading,
   getInstinctLogMessage,
+  didOpponentChange,
   ITEM,
 } from './items.js';
 import { appendReplayEvent, buildMatchSummary } from './replay.js';
@@ -103,6 +104,7 @@ function advanceToNextTurn(state, player, opponent) {
       partialResult: null,
       lastResolve: null,
       cpuAdjusted: false,
+      playerAdjusted: false,
       cpuBluffedThisTurn: false,
       instinctReading: null,
       tieItemsRemaining: [],
@@ -142,7 +144,7 @@ function applyInstinctUpdate(state, opponent, cpuBluffedThisTurn) {
     return { ...state, opponent, cpuBluffedThisTurn };
   }
 
-  const reading = getInstinctReading(opponent, cpuBluffedThisTurn);
+  const reading = getInstinctItemReading(opponent, cpuBluffedThisTurn);
   if (reading === state.instinctReading) {
     return { ...state, opponent, cpuBluffedThisTurn };
   }
@@ -300,6 +302,7 @@ export function reducePhase(state, action) {
           phase: PHASE.REVEAL,
           partialResult,
           cpuAdjusted: false,
+          playerAdjusted: false,
           cpuBluffedThisTurn: false,
           instinctReading: null,
           opponent: {
@@ -355,6 +358,7 @@ export function reducePhase(state, action) {
 
     case 'ADJUST_CHANGE': {
       if (!isActiveMatch(state) || state.phase !== PHASE.ADJUST) return state;
+      if (state.playerAdjusted) return state;
       if (!action.move) return state;
       if (!canChange(state.player)) return state;
 
@@ -367,7 +371,7 @@ export function reducePhase(state, action) {
       });
 
       return appendLogAndReplay(
-        { ...state, player },
+        { ...state, player, playerAdjusted: 'changed' },
         `[ADJUST] player: ${current} → ${action.move} (changed)`,
         {
           kind: 'adjust',
@@ -379,10 +383,11 @@ export function reducePhase(state, action) {
 
     case 'ADJUST_CONFIRM': {
       if (!isActiveMatch(state) || state.phase !== PHASE.ADJUST) return state;
+      if (state.playerAdjusted) return state;
 
       const current = state.player.finalChoice ?? state.player.choice;
       return appendLogAndReplay(
-        state,
+        { ...state, playerAdjusted: 'kept' },
         `[ADJUST] player: ${current} (kept)`,
         { kind: 'adjust', actor: 'player', payload: { kept: true, move: current } },
       );
@@ -390,11 +395,12 @@ export function reducePhase(state, action) {
 
     case 'ADJUST_BLUFF': {
       if (!isActiveMatch(state) || state.phase !== PHASE.ADJUST) return state;
+      if (state.playerAdjusted) return state;
       if (!canBluff(state.player)) return state;
 
       const player = spendBluff(state.player);
       return appendLogAndReplay(
-        { ...state, player },
+        { ...state, player, playerAdjusted: 'bluffed' },
         '[BLUFF] player: fake (패 불변)',
         { kind: 'bluff', actor: 'player', payload: {} },
       );
@@ -416,6 +422,10 @@ export function reducePhase(state, action) {
           state.opponent,
           state.cpuBluffedThisTurn,
         );
+      }
+
+      if (state.cpuBluffedThisTurn || didOpponentChange(state.opponent)) {
+        return state;
       }
 
       const opponent = spendChange({
@@ -442,11 +452,13 @@ export function reducePhase(state, action) {
     case 'CPU_BLUFF': {
       if (!isActiveMatch(state) || state.phase !== PHASE.ADJUST) return state;
       if (!canBluff(state.opponent)) return state;
+      if (state.cpuBluffedThisTurn) return state;
+      if (didOpponentChange(state.opponent)) return state;
 
       const opponent = spendBluff(state.opponent);
       return applyInstinctUpdate(
         appendLogAndReplay(
-          { ...state, opponent, cpuBluffedThisTurn: true },
+          { ...state, opponent, cpuAdjusted: true, cpuBluffedThisTurn: true },
           '[BLUFF] cpu: (hidden) fake',
           { kind: 'bluff', actor: 'cpu', hidden: true, payload: {} },
         ),
@@ -460,6 +472,9 @@ export function reducePhase(state, action) {
 
       let player = lockFinalChoice(state.player);
       let opponent = lockFinalChoice(state.opponent);
+      if (player.activeItem === ITEM.INSTINCT) {
+        player = clearActiveItem(player);
+      }
       const outcome = resolveRps(player.finalChoice, opponent.finalChoice);
 
       const next = {
@@ -636,8 +651,8 @@ export function canSelectMove(phase) {
  * @param {object} player
  * @returns {boolean}
  */
-export function canAdjustChange(phase, player) {
-  return phase === PHASE.ADJUST && canChange(player);
+export function canAdjustChange(phase, player, committed = false) {
+  return phase === PHASE.ADJUST && !committed && canChange(player);
 }
 
 /**
@@ -645,14 +660,14 @@ export function canAdjustChange(phase, player) {
  * @param {object} player
  * @returns {boolean}
  */
-export function canAdjustBluff(phase, player) {
-  return phase === PHASE.ADJUST && canBluff(player);
+export function canAdjustBluff(phase, player, committed = false) {
+  return phase === PHASE.ADJUST && !committed && canBluff(player);
 }
 
 /**
  * @param {string} phase
  * @returns {boolean}
  */
-export function canAdjustConfirm(phase) {
-  return phase === PHASE.ADJUST;
+export function canAdjustConfirm(phase, committed = false) {
+  return phase === PHASE.ADJUST && !committed;
 }

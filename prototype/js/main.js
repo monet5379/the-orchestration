@@ -10,6 +10,7 @@ import {
 } from './core/timing.js';
 import { MOVE } from './core/constants.js';
 import { planCpuAdjust, maybeBluff, pickOpponentMask } from './ai/opponent.js';
+import { didOpponentChange } from './game/items.js';
 import { isMatchActive } from './scenes/match.js';
 import {
   persistVictory,
@@ -140,11 +141,31 @@ function schedulePhaseTransitions(lastActionType, prevPhase) {
     beginAdjustPhase();
   }
 
+  if (
+    state.phase === PHASE.ADJUST &&
+    (lastActionType === 'ADJUST_CHANGE' ||
+      lastActionType === 'ADJUST_CONFIRM' ||
+      lastActionType === 'ADJUST_BLUFF' ||
+      lastActionType === 'CPU_ADJUST' ||
+      lastActionType === 'CPU_BLUFF')
+  ) {
+    maybeAdvanceAdjustEarly();
+  }
+
   if (state.phase === PHASE.RESOLVE && lastActionType === 'ADVANCE_TO_RESOLVE') {
     trackTimer(
       setTimeout(() => dispatch({ type: 'COMPLETE_RESOLVE' }), RESOLVE_DELAY_MS),
     );
   }
+}
+
+/** 플레이어·상대 모두 ADJUST 결정을 마치면 타이머를 끊고 즉시 RESOLVE */
+function maybeAdvanceAdjustEarly() {
+  if (!isMatchActive(state) || state.phase !== PHASE.ADJUST) return;
+  if (!state.playerAdjusted || !state.cpuAdjusted) return;
+
+  clearAllTimers();
+  dispatch({ type: 'ADVANCE_TO_RESOLVE' });
 }
 
 function beginSelectPhase() {
@@ -225,17 +246,22 @@ function beginAdjustPhase() {
       } else {
         dispatch({ type: 'CPU_ADJUST', kept: true });
       }
-    }, cpuDelay),
-  );
 
-  const bluffDelay = 500 + Math.random() * 3500;
-  trackTimer(
-    setTimeout(() => {
-      if (!isMatchActive(state) || state.phase !== PHASE.ADJUST) return;
-      if (maybeBluff(state)) {
-        dispatch({ type: 'CPU_BLUFF' });
+      if (!isMatchActive(state) || state.phase !== PHASE.ADJUST) {
+        return;
       }
-    }, bluffDelay),
+
+      const bluffDelay = 300 + Math.random() * 800;
+      trackTimer(
+        setTimeout(() => {
+          if (!isMatchActive(state) || state.phase !== PHASE.ADJUST) return;
+          if (didOpponentChange(state.opponent)) return;
+          if (maybeBluff(state)) {
+            dispatch({ type: 'CPU_BLUFF' });
+          }
+        }, bluffDelay),
+      );
+    }, cpuDelay),
   );
 }
 
@@ -423,7 +449,7 @@ async function boot() {
 
   void preloadAudio();
 
-  console.log('[Orchestration] v0.1.28 — SELECT 60s · ADJUST 30s', { state, save });
+  console.log('[Orchestration] v0.1.29 — ADJUST commit-once · early resolve', { state, save });
 }
 
 boot();
