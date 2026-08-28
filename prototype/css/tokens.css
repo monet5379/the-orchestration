@@ -1,0 +1,22 @@
+:root {
+  --concrete: #242424;
+  --concrete-deep: #181818;
+  --iron: #4a4a4a;
+  --iron-bright: #5c5c5c;
+  --rust: #8b4513;
+  --phase-term: #d4894a;
+  --instinct: #d4a843;
+  --victory: #6db87a;
+  --draw: #d4c35a;
+  --defeat: #c44;
+  --text: #e8e6dc;
+  --text-muted: #b0aea5;
+  --countdown-urgent: #c44;
+  --pov-vignette: rgba(0, 0, 0, 0.88);
+  --panel-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  --metal-highlight: rgba(255, 255, 255, 0.1);
+  --phase-select: 8s;
+  --phase-adjust: 5s;
+  --pov-viewport-height: 300px;
+  --ceiling-height: 100px;
+}

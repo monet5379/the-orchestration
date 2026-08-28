@@ -1,0 +1,258 @@
+/* 마스크 POV — 눈구멍 렌즈 + 비네팅 + 심문실 실루엣 */
+
+#pov-viewport {
+  border-color: var(--iron);
+  flex-shrink: 0;
+  height: var(--pov-viewport-height);
+  isolation: isolate;
+  max-height: var(--pov-viewport-height);
+  min-height: var(--pov-viewport-height);
+  overflow: hidden;
+  position: relative;
+}
+
+#opponent-view {
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 85%, rgba(60, 45, 35, 0.35), transparent 70%),
+    linear-gradient(180deg, #0c0c0e 0%, #141418 45%, #1a1614 100%);
+  inset: 0;
+  position: absolute;
+}
+
+#opponent-view::before {
+  background: radial-gradient(ellipse 45% 55% at 50% 38%, #2a2420 0%, #121010 70%);
+  content: '';
+  inset: 8% 18% 28%;
+  position: absolute;
+}
+
+.opponent-figure {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  inset: 0;
+  justify-content: flex-start;
+  padding-top: 12%;
+  position: absolute;
+}
+
+.opponent-mask {
+  background: linear-gradient(165deg, #5a5a5a 0%, #3a3a3a 55%, #2a2a2a 100%);
+  border: 2px solid #222;
+  border-radius: 48% 48% 42% 42%;
+  box-shadow:
+    inset 0 -8px 16px rgba(0, 0, 0, 0.45),
+    0 6px 20px rgba(0, 0, 0, 0.55);
+  height: 88px;
+  position: relative;
+  width: 72px;
+}
+
+.opponent-mask::before,
+.opponent-mask::after {
+  background: #0a0a0a;
+  border-radius: 50%;
+  content: '';
+  height: 10px;
+  position: absolute;
+  top: 34px;
+  width: 14px;
+}
+
+.opponent-mask::before {
+  left: 16px;
+}
+
+.opponent-mask::after {
+  right: 16px;
+}
+
+.opponent-mask-doodle {
+  color: #e8c4a0;
+  font-family: 'Comic Sans MS', 'Segoe UI', cursive;
+  font-size: 1.35rem;
+  font-weight: 700;
+  left: 50%;
+  pointer-events: none;
+  position: absolute;
+  top: 18px;
+  transform: translateX(-50%);
+}
+
+.opponent-shoulders {
+  background: linear-gradient(180deg, #3d3835 0%, #2a2624 100%);
+  border-radius: 40% 40% 0 0;
+  height: 48px;
+  margin-top: -6px;
+  width: 120px;
+}
+
+.opponent-table-edge {
+  background: linear-gradient(180deg, transparent, rgba(74, 74, 74, 0.55));
+  bottom: 0;
+  height: 28%;
+  left: 0;
+  pointer-events: none;
+  position: absolute;
+  right: 0;
+}
+
+.pov-vignette {
+  background: radial-gradient(
+    ellipse 85% 75% at 50% 45%,
+    transparent 42%,
+    rgba(0, 0, 0, 0.55) 72%,
+    rgba(0, 0, 0, 0.92) 100%
+  );
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+  z-index: 2;
+}
+
+.pov-mask-overlay {
+  background: rgba(6, 6, 8, 0.94);
+  inset: 0;
+  mask-image: url('#pov-eye-mask');
+  -webkit-mask-image: url('#pov-eye-mask');
+  pointer-events: none;
+  position: absolute;
+  z-index: 3;
+}
+
+.pov-lens-ring {
+  border: 2px solid rgba(90, 78, 68, 0.55);
+  border-radius: 50%;
+  box-shadow:
+    inset 0 0 18px rgba(0, 0, 0, 0.65),
+    0 0 8px rgba(0, 0, 0, 0.4);
+  height: 19%;
+  pointer-events: none;
+  position: absolute;
+  top: 36%;
+  width: 22%;
+  z-index: 4;
+}
+
+.pov-lens-ring--left {
+  left: 28%;
+}
+
+.pov-lens-ring--right {
+  right: 28%;
+}
+
+.pov-scanlines {
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.06) 2px,
+    rgba(0, 0, 0, 0.06) 4px
+  );
+  inset: 0;
+  mix-blend-mode: multiply;
+  opacity: 0.35;
+  pointer-events: none;
+  position: absolute;
+  z-index: 5;
+}
+
+.pov-hud {
+  display: flex;
+  flex-direction: column;
+  inset: 0;
+  justify-content: space-between;
+  padding: 0.4rem 0.5rem;
+  pointer-events: none;
+  position: absolute;
+  z-index: 6;
+}
+
+.pov-hud__top,
+.pov-hud__bottom {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.pov-hud__top {
+  justify-content: space-between;
+}
+
+.pov-hud__bottom {
+  justify-content: flex-start;
+}
+
+/* 페이즈·연출 상태 */
+
+#pov-viewport[data-phase='REVEAL'] .opponent-figure {
+  animation: pov-reveal-lean 0.8s ease-out forwards;
+}
+
+#pov-viewport[data-phase='ADJUST'] .opponent-figure {
+  animation: pov-adjust-tension 2.4s ease-in-out infinite;
+}
+
+#pov-viewport[data-phase='RESOLVE'] .opponent-figure {
+  filter: brightness(1.08);
+}
+
+#pov-viewport.is-bluff-flash .pov-lens-ring {
+  animation: pov-bluff-ring 0.35s ease-out;
+  border-color: rgba(196, 68, 68, 0.75);
+}
+
+#pov-viewport.is-bluff-flash .pov-vignette {
+  animation: pov-bluff-vignette 0.35s ease-out;
+}
+
+@keyframes pov-reveal-lean {
+  from {
+    transform: translateY(4px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes pov-adjust-tension {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes pov-bluff-ring {
+  0% {
+    box-shadow:
+      inset 0 0 18px rgba(0, 0, 0, 0.65),
+      0 0 0 rgba(196, 68, 68, 0);
+  }
+  40% {
+    box-shadow:
+      inset 0 0 24px rgba(196, 68, 68, 0.35),
+      0 0 14px rgba(196, 68, 68, 0.45);
+  }
+  100% {
+    box-shadow:
+      inset 0 0 18px rgba(0, 0, 0, 0.65),
+      0 0 8px rgba(0, 0, 0, 0.4);
+  }
+}
+
+@keyframes pov-bluff-vignette {
+  0% {
+    filter: brightness(1);
+  }
+  35% {
+    filter: brightness(1.25);
+  }
+  100% {
+    filter: brightness(1);
+  }
+}

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Orchestration — Prototype</title>
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/ceiling.css">
+  <link rel="stylesheet" href="css/panel.css">
+  <link rel="stylesheet" href="css/pov.css">
+  <link rel="stylesheet" href="css/cell.css">
+  <link rel="stylesheet" href="css/vhs.css">
+</head>
+<body>
+  <div id="overlay">
+    <section id="menu-screen" class="overlay-screen">
+      <h1>The Orchestration</h1>
+      <p class="overlay-subtitle">죽음을 관리하는 자 — HTML Prototype v0.1.27 (Step 6)</p>
+
+      <div class="rules-brief" aria-label="매치 규칙">
+        <p class="rules-brief__title">[ 게임 규칙 ]</p>
+        <p>턴에서 패배할 때마다 페널티 +1</p>
+        <p>페널티 3회 → 매치 패배</p>
+        <p>상대 페널티 3회 → 승리</p>
+      </div>
+
+      <p id="menu-save-summary" class="menu-save-summary" hidden></p>
+
+      <div class="menu-actions">
+        <button id="btn-continue" type="button" class="metal-btn" disabled>이어하기</button>
+        <button id="btn-new-game" type="button" class="metal-btn">새 게임</button>
+      </div>
+    </section>
+
+    <section id="gameover-screen" class="overlay-screen" hidden>
+      <h2 id="gameover-title">—</h2>
+      <p id="gameover-summary"></p>
+      <button id="btn-restart" type="button">다시 하기</button>
+    </section>
+  </div>
+
+  <div id="app">
+    <div id="match-nav" class="match-nav" hidden>
+      <div id="dev-cheat-buttons" class="match-nav__cheats" hidden>
+        <button id="btn-force-win" type="button" class="match-nav-btn metal-btn">강제 승리</button>
+        <button id="btn-force-lose" type="button" class="match-nav-btn metal-btn">강제 패배</button>
+      </div>
+      <button
+        id="btn-dev-mode"
+        type="button"
+        class="match-nav-btn metal-btn"
+        aria-pressed="false"
+        title="강제 승리·패배 치트 표시"
+      >개발자 모드</button>
+      <button id="btn-to-title" type="button" class="match-nav-btn metal-btn">타이틀로</button>
+    </div>
+
+    <div id="game-root" hidden>
+      <header id="ceiling-screen" aria-live="polite"></header>
+
+      <main id="pov-viewport" aria-label="마스크 POV">
+        <svg class="pov-mask-defs" width="0" height="0" aria-hidden="true">
+          <defs>
+            <mask id="pov-eye-mask" maskUnits="objectBoundingBox">
+              <rect width="1" height="1" fill="white"/>
+              <ellipse cx="0.38" cy="0.44" rx="0.11" ry="0.075" fill="black"/>
+              <ellipse cx="0.62" cy="0.44" rx="0.11" ry="0.075" fill="black"/>
+            </mask>
+          </defs>
+        </svg>
+        <div id="opponent-view" aria-hidden="true"></div>
+        <div class="pov-vignette" aria-hidden="true"></div>
+        <div class="pov-mask-overlay" aria-hidden="true"></div>
+        <div class="pov-lens-ring pov-lens-ring--left" aria-hidden="true"></div>
+        <div class="pov-lens-ring pov-lens-ring--right" aria-hidden="true"></div>
+        <div class="pov-scanlines" aria-hidden="true"></div>
+        <div id="pov-hud" class="pov-hud" aria-label="상태 표시"></div>
+      </main>
+
+      <section id="player-display" class="panel-chrome" aria-live="polite"></section>
+
+      <section id="button-panel" aria-label="버튼 패널"></section>
+
+      <section id="tie-loot-panel" hidden aria-label="무승부 아이템"></section>
+
+      <aside id="event-log" aria-label="이벤트 로그"></aside>
+    </div>
+
+    <section id="cell-root" hidden aria-label="독방">
+      <header>
+        <h1 class="cell-header">독방</h1>
+        <p class="cell-subtitle">관리인의 VHS 테이프 — 직전 매치 복기</p>
+      </header>
+
+      <p id="cell-reward-msg"></p>
+
+      <div id="cell-wall" class="cell-wall" aria-label="가면 진열"></div>
+
+      <p id="cell-mask-desc" class="cell-desc" aria-live="polite"></p>
+
+      <p id="cell-vhs-desc" class="cell-desc">
+        직전 매치의 기록을 재생합니다. 타임라인으로 장면을 되감거나 건너뛸 수 있습니다. CPU 행동은 숨김으로 표시됩니다.
+      </p>
+
+      <div id="vhs-player" class="vhs-panel" aria-label="VHS 플레이어">
+        <span class="vhs-panel__label">CAM-02 · REC</span>
+        <div id="vhs-screen"></div>
+        <input type="range" id="vhs-scrub" min="0" max="0" value="0" aria-label="타임라인" />
+        <div id="vhs-controls">
+          <button type="button" id="vhs-rewind" aria-label="되감기">◀◀</button>
+          <button type="button" id="vhs-play" aria-label="재생">▶</button>
+          <button type="button" id="vhs-pause" aria-label="일시정지">⏸</button>
+          <button type="button" id="vhs-ff" aria-label="빨리감기">▶▶</button>
+        </div>
+      </div>
+
+      <div class="cell-actions">
+        <button type="button" id="btn-next-match">다음 상대</button>
+        <button type="button" id="btn-cell-title">타이틀</button>
+      </div>
+    </section>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

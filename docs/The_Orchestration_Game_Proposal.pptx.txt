@@ -1,0 +1,116 @@
+THE ORCHESTRATION
+죽음을 관리하는 자
+1:1 턴제 심리 스릴러 로그라이크
+Opening Slide: Introduce the game title and basic concept. Highlight the genre: 1:1 psychological thriller with turn-based roguelike loops. The background scene establishes the dark concrete interrogation room where players will face execution.
+
+생사가 걸린 1:1 심리전과 독창적인 폐쇄형 공포
+플레이어와 사형수가 마주 앉아 오직 두 손만 자유로운 채 시작되는 데스 게임
+게임 개요 및 타겟층
+•  플레이어의 신분
+    사형 집행을 앞두고 외진 지하실 독방에 감금된 죄수
+•  핵심 가치
+    불완전한 정보의 비대칭성을 활용한 숨막히는 심리적 스릴
+•  타겟층 유저
+    정교한 수 싸움, 고유 룰 변조 장치, 하드코어 로그라이크 장르 매니아
+•  게임의 기조
+    확률과 운보다는 상대의 실시간 자원을 읽고 기만하는 '능동적 실력'의 재미
+폐쇄적 1인칭 비주얼 POV
+•  마스크 POV 시점
+    플레이어가 착용한 가면에 뚫린 작은 눈 구멍으로 보이는 이중 프레임 왜곡 렌즈 효과
+•  결박된 신체
+    몸은 가죽 끈으로 철제 의자에 단단히 묶여 있으며, 눈앞의 패널 버튼을 누르는 두 손만이 유일하게 허용된 자유
+•  기괴함의 대조
+    서로 마주한 죄수복 차림. 그러나 머리에는 이질적으로 '귀여운 아기 그림'이나 '낙서'가 그려진 이질적인 철제 가면 착용
+Visual Identity Slide: Point out the unique POV of the game. Contrast the horror and physical confinement with the cartoonishly cute drawings on the creepy prisoner masks. Show how this visual dissonance enhances the psychological tension.
+
+정보의 비대칭성과 5초의 수정 페이즈가 만드는 게임 루프
+천장 스크린의 왜곡된 정보와 블러핑을 이용한 한 판의 실시간 심리 서스펜스
+1단계: 동시 패 선택
+제한 시간 내, 눈 앞의 철제 버튼 패널에서 가위/바위/보 중 하나를 기밀 입력 (디스플레이에 자신만 확인 가능한 심볼 점등).
+2단계: 상황 정보 노출
+천장에서 소음과 함께 육중한 철제 모니터가 하강. '승자 있음' 혹은 '무승부' 메시지만 중계 (누가 이겼는지는 비공개).
+3단계: 5초 수정 & 블러핑
+결정을 유지할지, 바꿀지 5초 카운트다운 시작. 한정 자원을 써서 패를 수정하거나, 소리와 연출로 바꾼 척 속이는 페이크 동작 가능.
+4단계: 결과 공개 및 페널티
+결정된 패 최종 대조. 패배 시 점진적 형벌(3-4회 누적 시 패배). 무승부 시 테이블 중앙에 3개의 아이템을 육중한 기계 팔이 투척.
+※ 무승부 변수 극대화: 중앙 투척 아이템 메커니즘
+무승부가 발생하면 양쪽 모두의 손이 닿는 금속 테이블 한가운데로 3개의 전술 유틸리티 아이템이 기계 팔에 의해 떨어집니다. 이 아이템들은 한 턴 동안 룰을 일시적으로 지배하는 강력한 변수 창출 카드입니다. 기획 논의 사항: 선착순 빠른 낚아채기를 전제로 할 것인가, 가져오는 즉각적인 행동 자체에도 한정된 개인 자원을 소모하게 할 것인가에 따른 심도 깊은 기획 고도화 필요.
+Gameplay Loop Slide: Emphasize the unique 5-second adjustment phase. Unlike static card games, our game adds an interactive, high-tension 'bluffing' mechanic where pressing buttons triggers sounds and physical animations to trick the opponent.
+
+승리 전리품 획득과 독방에서의 캠코더 녹화 테이프 복기
+상대의 가면을 수집하고, 안전지대에서 비밀 녹화본을 분석하며 다음 사형수를 대비합니다
+상대 가면 강탈과 규칙 영구 해금
+■ 영구적 전리품 수집
+처형된 상대편 사형수의 이질적인 고유 가면을 직접 벗겨내 전리품으로 영구 획득합니다.
+■ 새로운 유틸리티 능력 개방
+가면을 해금할 때마다 다음 매치에서 사용할 수 있는 룰 변형 및 변조 능력(패 수정 확인, 타이머 연장 등)이 추가됩니다.
+■ 로그라이크적 회차 요소
+수집된 가면은 플레이어의 독방 벽면에 진열되며, 매 회차마다 다른 유틸리티 빌드를 구성하여 도전을 계속하도록 유도합니다.
+캠코더 리플레이 복기 시스템
+■ 안전지대인 독방으로 복귀
+한 게임이 끝나면 감금되어 있는 본인의 침침한 아날로그식 독방으로 강제 이송됩니다.
+■ 관리인의 비디오 테이프
+정체불명의 관리인이 바로 직전 매치에서 상대방이 플레이하던 시점을 몰래 밀폐 녹화한 VHS 비디오 테이프를 전해줍니다.
+■ 물리적인 캠코더 상호작용
+플레이어는 재생, 일시정지, 빨리감기, 되감기 물리 버튼을 직접 눌러가며 상대가 5초 수정 페이즈에서 어떤 습관을 가졌는지 파악합니다. (선택형 콘텐츠)
+Progression & Replay: Explain how the player transitions between high-tension games and the calm analysis in their cell. The camcorder system serves as a tactile mechanic where players can study their opponent's micro-movements during the 5-second countdown.
+
+유사 장르 래퍼런스 게임 분석 및 차별점 매트릭스
+인스크립션의 카드빌딩, 벅샷 룰렛의 확률 요소를 융합하고 한층 고도화한 실시간 심리 서스펜스
+비교 항목
+인스크립션 (Inscryption)
+벅샷 룰렛 (Buckshot Roulette)
+디 오케스트레이션 (우리 게임)
+핵심 플레이
+정적인 카드 덱 빌딩 기반의 전술 전투
+실탄과 공포탄 배분을 계산하는 확률식 도박
+행동 기밀 선택 및 상황 판정 후 5초간의 행동 수정/기만전
+긴장감 조성
+무제한 고민 시간으로 깊이 있는 전략 계산
+러시안 룰렛의 기괴함과 강렬한 템포의 스릴
+실시간 5초 타임어택 압박과 모션/사운드 중심 블러핑 극대화
+승패 영향력
+덱 메이킹 빌딩 완성도 및 카드 수치 밸런스
+철저하게 설계된 확률과 도구 카드의 변수 운
+상대 가용 자원 카운팅과 5초 수정 페이즈의 수 싸움 (능동 실력)
+리플레이성
+독특한 메타 픽션 스토리 전개와 숨겨진 해금
+규칙이 단조롭고 확률에 치우쳐 다소 짧은 지속성
+상대 가면 강탈을 통한 룰 왜곡 능력 해금 및 독방 로어 수집
+Reference Matrix Slide: Provide a clean comparison of Inscryption, Buckshot Roulette, and The Orchestration. Emphasize that while those games rely heavily on cards or pure probability, our game relies on active psychology and real-time counter-play.
+
+시장성을 확보할 우리 게임만의 독보적 핵심 경쟁력
+정적인 장르에 탑재된 '실시간 심리 압박'과 자신만의 파괴적 공략을 그리는 유틸리티 설계
+1. 실시간 심리 변조 (5초의 블러핑)
+▶ 실시간 긴장감 유입
+보통의 턴제 기동은 결정을 한 번 내리면 끝이지만, 본 작은 상대 정보 노출 후 5초간 기만 행위를 할 수 있는 시간 한정 수정 기회를 가집니다.
+▶ 다감각적 속임수
+입력 시 금속 버튼의 무거운 쇠 소리와 모션이 상대 스피커와 화면 너머로 그대로 송출되어 이를 거짓으로 조작하며 수많은 심리 연출이 파생됩니다.
+▶ 순발력과 뇌지컬의 융합
+정적인 두뇌 싸움에 극도로 조여오는 시간 압박을 더해, 플레이어가 매 순간 공포와 전율의 중간 지대에서 의사결정을 하도록 자극합니다.
+2. 전술적 규칙 왜곡 유틸리티
+▶ 기본 시스템의 붕괴
+단순히 특정 주사위 수치나 체력을 증가시키는 정량적인 버프를 단호하게 거부하고, 게임 판의 근간 규칙 자체를 파괴하고 왜곡합니다.
+▶ 독창적 스킬 예시
+상대가 실제로 버튼 조작을 수행했는지 물리적 변화를 냄새 맡듯 알려주는 '본능', 내 5초 수정 카운트다운을 늘리고 멈추게 하는 '시간 팽창' 등 탑재.
+▶ 플레이 다각화
+수집한 다양한 가면의 결합을 통해 매 판 무작위적인 기괴한 스킬 조합 시너지를 경험하여 영구적인 리플레이 동기를 제공합니다.
+Core Competencies: Explain the two USPs (Unique Selling Points). Show why the game can capture the market by blending real-time tension with rule-breaking utility.
+
+프로젝트 성장을 위한 해결 고민 과제
+구체적인 상호작용 규칙 및 유저를 지속적으로 묶어둘 리플레이성 보완
+과제 1: 무승부 아이템 획득의 구체적 룰
+■ 물리적 속도 독식 방식
+가장 빠르게 가져가는 사람이 3개의 아이템을 전부 쓸어담는 방식. 피지컬적 긴장감은 높으나 턴제 지향 유저에게 피로감을 줄 수 있음.
+■ 자원 연동 제한 방식
+아이템을 테이블에서 독방 쪽으로 가져오는 행위 자체에 한정된 '손 움직임 체력'이나 자원을 소모하게 설계하여 수 싸움으로 변형.
+■ 동시 조작 충돌 처리
+만약 양쪽 사형수가 똑같이 테이블 정중앙에 투척된 동일한 아이템 하나를 동시에 노려 움켜잡았을 때의 우선 판정과 균형 룰 마련 필요.
+과제 2: 장기 플레이 동기부여 요소 보완
+■ 다양한 죄수 독방 커스텀
+매치 후 복귀하는 개인 독방의 철제 프레임, 침대 시트, 창문 쇠창살 등을 승리 전리품으로 소소하게 장식하는 영구 하우징 시스템.
+■ 복기 테이프 속의 메타 로어
+단순히 상대방의 플레이 습관 분석(리플레이)에 그치지 않고, 비디오 테이프 속에 숨겨진 의문의 사형장 관리국의 배후 세계관과 시나리오 단서를 삽입.
+■ 미스테리 및 퀘스트 추적
+여러 상대의 테이프를 소리로 짜맞추어 숨겨진 암호를 해석하면 사형장을 탈옥할 수 있는 '진엔딩 루트'를 설계해 다회차 동기 부여 극대화.
+Challenges Slide: Open discussion for future development. Highlight the mechanical questions regarding item looting during ties and how to stretch the progression to improve long-term player retention.

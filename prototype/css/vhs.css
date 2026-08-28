@@ -1,0 +1,87 @@
+.vhs-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding: 0.85rem;
+  background: #0a0a0a;
+  border: 3px solid var(--iron);
+  border-radius: 4px;
+  box-shadow: var(--panel-shadow), inset 0 0 24px rgba(0, 0, 0, 0.6);
+}
+
+.vhs-panel__label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+#vhs-screen {
+  position: relative;
+  min-height: 140px;
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 0.75rem;
+  background: #0d120d;
+  border: 2px inset var(--iron);
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: #7fdb7f;
+  text-shadow: 0 0 4px rgba(127, 219, 127, 0.4);
+}
+
+#vhs-screen::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.12) 2px,
+    rgba(0, 0, 0, 0.12) 4px
+  );
+}
+
+.vhs-line {
+  margin: 0.15rem 0;
+  opacity: 0.65;
+}
+
+.vhs-line--active {
+  opacity: 1;
+  color: #a8f0a8;
+}
+
+.vhs-line--idle {
+  opacity: 0.5;
+  font-style: italic;
+}
+
+#vhs-scrub {
+  width: 100%;
+  accent-color: var(--rust);
+}
+
+#vhs-controls {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+#vhs-controls button {
+  min-width: 2.5rem;
+  padding: 0.4rem 0.65rem;
+  font-size: 0.85rem;
+  background: var(--iron);
+  border: 1px solid var(--iron-bright);
+  border-radius: 3px;
+  color: var(--text);
+  cursor: pointer;
+}
+
+#vhs-controls button:hover {
+  background: var(--iron-bright);
+}

@@ -1,0 +1,29 @@
+# Dependencies (npx serve, Playwright, etc.)
+node_modules/
+
+# Playwright
+test-results/
+playwright-report/
+playwright/.cache/
+blob-report/
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editor / IDE (local workspace paths)
+.cursor/
+*.code-workspace
+
+# Logs & debug
+*.log
+npm-debug.log*
+
+# Local scratch
+*.local

@@ -1,0 +1,141 @@
+/* 천장 모니터 — 고정 슬롯 + 하강 연출 */
+
+#ceiling-screen {
+  flex-shrink: 0;
+  height: var(--ceiling-height);
+  min-height: var(--ceiling-height);
+  overflow: hidden;
+  padding: 0.25rem 0 0.5rem;
+  position: relative;
+}
+
+.ceiling-rail {
+  background: linear-gradient(180deg, #3a3a3a, #2a2a2a);
+  border-radius: 2px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+  height: 6px;
+  margin: 0 auto;
+  width: 72%;
+}
+
+.ceiling-monitor {
+  margin: 0 auto;
+  max-width: 420px;
+  opacity: 0;
+  position: relative;
+  transform: translateY(-120%);
+  transition: opacity 0.35s ease, transform 0.35s ease, visibility 0.35s;
+  visibility: hidden;
+  width: 92%;
+}
+
+#ceiling-screen:not(.is-active) .ceiling-monitor {
+  opacity: 0;
+  transform: translateY(-120%);
+  visibility: hidden;
+}
+
+#ceiling-screen.is-active:not(.is-descending) .ceiling-monitor {
+  opacity: 1;
+  transform: translateY(0);
+  visibility: visible;
+}
+
+#ceiling-screen.is-descending .ceiling-monitor {
+  animation: ceiling-descend 0.75s cubic-bezier(0.34, 1.2, 0.48, 1) forwards;
+  visibility: visible;
+}
+
+.ceiling-cable {
+  background: linear-gradient(90deg, #333, #555, #333);
+  height: 10px;
+  margin: 0 auto;
+  width: 4px;
+}
+
+.ceiling-monitor-bezel {
+  background: linear-gradient(165deg, #4a4a4a 0%, #2e2e2e 45%, #222 100%);
+  border: 2px solid #1a1a1a;
+  border-radius: 6px;
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.06),
+    inset 0 -4px 12px rgba(0, 0, 0, 0.55),
+    0 8px 20px rgba(0, 0, 0, 0.45);
+  padding: 0.65rem 1rem 0.85rem;
+  position: relative;
+}
+
+.ceiling-monitor-bezel::before {
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(0, 0, 0, 0.04) 3px,
+    rgba(0, 0, 0, 0.04) 6px
+  );
+  border-radius: 4px;
+  content: '';
+  inset: 4px;
+  pointer-events: none;
+  position: absolute;
+}
+
+.ceiling-monitor-label {
+  color: var(--rust);
+  display: block;
+  font-family: monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  margin-bottom: 0.35rem;
+  opacity: 0.85;
+}
+
+.ceiling-message {
+  color: #e8f0dc;
+  font-size: 1.35rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  margin: 0;
+  position: relative;
+  text-align: center;
+  text-shadow:
+    0 0 8px rgba(200, 220, 180, 0.35),
+    0 0 18px rgba(140, 180, 120, 0.15);
+  z-index: 1;
+}
+
+#ceiling-screen[data-result='draw'] .ceiling-message {
+  color: #d4c8a8;
+  text-shadow: 0 0 10px rgba(212, 200, 168, 0.25);
+}
+
+#ceiling-screen[data-result='winner_exists'] .ceiling-message {
+  animation: ceiling-message-flicker 0.75s ease-out;
+}
+
+@keyframes ceiling-descend {
+  0% {
+    opacity: 0;
+    transform: translateY(-120%);
+  }
+  40% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ceiling-message-flicker {
+  0%,
+  18%,
+  22%,
+  100% {
+    opacity: 1;
+  }
+  20% {
+    opacity: 0.35;
+  }
+}

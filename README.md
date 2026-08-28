@@ -1,1 +1,17 @@
-# the-orchestration
+# The Orchestration
+
+1:1 턴제 심리 스릴러 로그라이크.
+가위·바위·보 심리전(5초 수정·페이크)과 승리 후 독방 메타(가면·VHS)를 검증하는 HTML 프로토타입입니다.
+
+**현재 빌드:** [prototype v0.1.27](./prototype/) · Step 0~6 완료
+
+---
+
+## 바로 실행
+
+```bash
+cd prototype
+# Windows: run.bat 더블클릭
+# 또는
+npx serve .
+# python -m http.server 8080
