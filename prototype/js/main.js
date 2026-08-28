@@ -5,7 +5,10 @@ import {
   REVEAL_DELAY_MS,
   RESOLVE_DELAY_MS,
   SELECT_COMMIT_DELAY_MS,
+  ADJUST_DURATION_MS,
+  SELECT_DURATION_MS,
 } from './core/timing.js';
+import { MOVE } from './core/constants.js';
 import { planCpuAdjust, maybeBluff, pickOpponentMask } from './ai/opponent.js';
 import { isMatchActive } from './scenes/match.js';
 import {
@@ -115,13 +118,18 @@ function dispatch(action) {
     resetCeilingScreen();
   }
 
-  schedulePhaseTransitions(action.type);
+  schedulePhaseTransitions(action.type, prevPhase);
 }
 
 /**
  * @param {string} lastActionType
+ * @param {string} prevPhase
  */
-function schedulePhaseTransitions(lastActionType) {
+function schedulePhaseTransitions(lastActionType, prevPhase) {
+  if (state.phase === PHASE.SELECT && prevPhase !== PHASE.SELECT) {
+    beginSelectPhase();
+  }
+
   if (state.phase === PHASE.REVEAL && lastActionType === 'COMMIT_SELECT') {
     trackTimer(
       setTimeout(() => dispatch({ type: 'ENTER_ADJUST' }), REVEAL_DELAY_MS),
@@ -139,8 +147,51 @@ function schedulePhaseTransitions(lastActionType) {
   }
 }
 
+function beginSelectPhase() {
+  const duration = SELECT_DURATION_MS;
+  const buttonPanel = document.getElementById('button-panel');
+  const timerEl = buttonPanel ? getAdjustTimerElement(buttonPanel) : null;
+
+  if (timerEl) {
+    startAdjustCountdown(
+      timerEl,
+      duration,
+      () => {
+        stopCountdown();
+        if (isMatchActive(state) && state.phase === PHASE.SELECT) {
+          onSelectTimeout();
+        }
+      },
+      '패 선택 남은 시간',
+    );
+  } else {
+    trackTimer(
+      setTimeout(() => {
+        if (isMatchActive(state) && state.phase === PHASE.SELECT) {
+          onSelectTimeout();
+        }
+      }, duration),
+    );
+  }
+}
+
+function onSelectTimeout() {
+  if (commitTimer) {
+    clearTimeout(commitTimer);
+    commitTimer = null;
+  }
+
+  if (!state.player.choice) {
+    const moves = [MOVE.ROCK, MOVE.PAPER, MOVE.SCISSORS];
+    const move = moves[Math.floor(Math.random() * moves.length)];
+    dispatch({ type: 'SELECT_MOVE', move });
+  }
+
+  dispatch({ type: 'COMMIT_SELECT' });
+}
+
 function beginAdjustPhase() {
-  const duration = state.adjustTimerMs ?? 5000;
+  const duration = state.adjustTimerMs ?? ADJUST_DURATION_MS;
   const buttonPanel = document.getElementById('button-panel');
   const timerEl = buttonPanel ? getAdjustTimerElement(buttonPanel) : null;
 
@@ -372,7 +423,7 @@ async function boot() {
 
   void preloadAudio();
 
-  console.log('[Orchestration] v0.1.27 — Step 6 meta loop ready', { state, save });
+  console.log('[Orchestration] v0.1.28 — SELECT 60s · ADJUST 30s', { state, save });
 }
 
 boot();

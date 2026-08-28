@@ -1,7 +1,7 @@
 # The Orchestration — HTML 프로토타입 구조
 
 > **목적:** 핵심 게임 루프(1:1 턴제 심리전 + 5초 블러핑)와 로그라이크 메타(독방·가면·VHS)를 검증하기 위한 바닐라 HTML/JS 프로토타입  
-> **프로토타입 버전:** **v0.1.27** (Step 0~6 완료)  
+> **프로토타입 버전:** **v0.1.28** (Step 0~6 완료)  
 > **관련 기획:** [The_Orchestration_Game_Proposal.pptx.txt](./The_Orchestration_Game_Proposal.pptx.txt)  
 > **기획 vs 프로토타입:** [Proposal_vs_Prototype.md](./Proposal_vs_Prototype.md)
 
@@ -351,6 +351,6 @@ ES Module·SFX fetch를 위해 **정적 서버 사용을 권장** (`file://` 비
 
 ---
 
-*문서 버전: 0.1.27 · 2026-08-28 · Step 0~6 + ADJUST 연출 비대칭*  
+*문서 버전: 0.1.28 · 2026-08-28 · SELECT 60s · ADJUST 30s*  
 *프로토타입 이력: [`../prototype/ARCHIVE.md`](../prototype/ARCHIVE.md)*
 

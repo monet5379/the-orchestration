@@ -15,8 +15,8 @@
   --pov-vignette: rgba(0, 0, 0, 0.88);
   --panel-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
   --metal-highlight: rgba(255, 255, 255, 0.1);
-  --phase-select: 8s;
-  --phase-adjust: 5s;
+  --phase-select: 60s;
+  --phase-adjust: 30s;
   --pov-viewport-height: 300px;
   --ceiling-height: 100px;
 }

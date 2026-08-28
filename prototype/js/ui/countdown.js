@@ -46,8 +46,9 @@ function updateGauge(root, durationMs, endAt) {
  * @param {HTMLElement} root
  * @param {number} durationMs
  * @param {TickCallback} onComplete
+ * @param {string} [ariaLabel]
  */
-export function startAdjustCountdown(root, durationMs, onComplete) {
+export function startAdjustCountdown(root, durationMs, onComplete, ariaLabel = '수정 페이즈 남은 시간') {
   stopCountdown();
 
   activeRoot = root;
@@ -55,7 +56,7 @@ export function startAdjustCountdown(root, durationMs, onComplete) {
   const track = root.querySelector('.adjust-timer__track');
   if (track) {
     track.setAttribute('role', 'progressbar');
-    track.setAttribute('aria-label', '수정 페이즈 남은 시간');
+    track.setAttribute('aria-label', ariaLabel);
   }
 
   root.hidden = false;

@@ -126,7 +126,7 @@ export function render(state, save) {
     }
   }
 
-  if (state.phase !== PHASE.ADJUST) {
+  if (state.phase !== PHASE.ADJUST && state.phase !== PHASE.SELECT) {
     stopCountdown();
   }
 }

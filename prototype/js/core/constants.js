@@ -26,8 +26,8 @@ export const SCENE = {
   GAMEOVER: 'gameover',
 };
 
-export const ADJUST_DURATION_MS = 5000;
-export const SELECT_DURATION_MS = 8000;
+export const ADJUST_DURATION_MS = 30000;
+export const SELECT_DURATION_MS = 60000;
 /** 패배 누적 3회 시 매치 종료 (기획서 형벌) */
 export const MAX_PENALTIES = 3;
 export const TIME_WARP_BONUS_MS = 2000;

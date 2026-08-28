@@ -1,4 +1,4 @@
-import { PHASE, SCENE } from '../core/constants.js';
+import { PHASE, SCENE, ADJUST_DURATION_MS } from '../core/constants.js';
 import { createReplayState } from './replay.js';
 
 /**
@@ -30,7 +30,7 @@ export function createInitialState() {
     cpuAdjusted: false,
     cpuBluffedThisTurn: false,
     instinctReading: null,
-    adjustTimerMs: 5000,
+    adjustTimerMs: ADJUST_DURATION_MS,
     tieItems: [],
     tieItemsRemaining: [],
     tieLootSelection: null,
@@ -59,7 +59,7 @@ export function createMatchState(options = {}) {
     cpuAdjusted: false,
     cpuBluffedThisTurn: false,
     instinctReading: null,
-    adjustTimerMs: 5000,
+    adjustTimerMs: ADJUST_DURATION_MS,
     tieItems: [],
     tieItemsRemaining: [],
     tieLootSelection: null,

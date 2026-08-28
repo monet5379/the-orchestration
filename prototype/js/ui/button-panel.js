@@ -121,7 +121,7 @@ export function setButtonPanelEnabled(container, phase, player) {
   const inAdjust = phase === PHASE.ADJUST;
   const forceDisabled = phase === '__disabled__';
 
-  if (adjustTimer && (!inAdjust || forceDisabled)) {
+  if (adjustTimer && (forceDisabled || (!inSelect && !inAdjust))) {
     adjustTimer.hidden = true;
   }
 
