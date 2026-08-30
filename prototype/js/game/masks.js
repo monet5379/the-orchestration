@@ -25,7 +25,7 @@ export const MASK_INFO = {
     label: '웃는 가면',
     doodle: '☺',
     ability: 'extra_change',
-    desc: '매치 시작 시 수정권을 1 추가로 얻습니다.',
+    desc: '매치 시작 시 바꾸기를 1 추가로 얻습니다.',
   },
   [MASK.DOODLE_QUESTION]: {
     label: '물음 가면',

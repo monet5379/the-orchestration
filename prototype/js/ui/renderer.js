@@ -259,7 +259,7 @@ function renderPlayerDisplay(state) {
     const current = state.player.finalChoice ?? initial;
     let statusLine = '';
     if (initial && current !== initial) {
-      statusLine = `수정: ${MOVE_LABELS[initial]} → ${MOVE_LABELS[current]}`;
+      statusLine = `바꾸기: ${MOVE_LABELS[initial]} → ${MOVE_LABELS[current]}`;
     } else if (current) {
       statusLine = `현재: ${MOVE_LABELS[current]}`;
     }

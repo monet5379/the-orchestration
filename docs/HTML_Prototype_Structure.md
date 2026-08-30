@@ -277,10 +277,10 @@ SELECT ──→ REVEAL ──→ ADJUST ──→ RESOLVE
 
 `main.js`에서 `dispatch` → `reducePhase` → `render(state, save)`.
 
-**ADJUST 연출 (v0.1.27+):** `CPU_BLUFF` / `CPU_ADJUST`(변경) 시 SFX + POV 플래시.  
+**ADJUST 연출 (v0.1.27+):** `CPU_BLUFF` / `CPU_ADJUST`(바꾸기) 시 SFX + POV 플래시.  
 플레이어 `ADJUST_CHANGE` / `ADJUST_BLUFF`는 무음·무플래시. SELECT 패 선택은 금속음·플래시 유지.
 
-**ADJUST 확정 · 안내 (v0.1.30):** 유지·변경·페이크는 턴당 **한 번**. 확정 후 버튼 전부 잠금 · 유효 패에 노란 테두리.  
+**ADJUST 확정 · 안내 (v0.1.30):** 유지·바꾸기·페이크는 턴당 **한 번**. 확정 후 버튼 전부 잠금 · 유효 패에 노란 테두리.  
 `playerAdjusted` + `cpuAdjusted`이면 `main.js`가 타이머를 끊고 즉시 `ADVANCE_TO_RESOLVE`.  
 `opponentButtonHint`로 상대 버튼 종류 표시. CPU는 `planCpuAdjustAction`으로 최종 행동 1회 커밋. 기본 UI는 페이크→바꾸기 위장.
 
@@ -302,7 +302,7 @@ SELECT ──→ REVEAL ──→ ADJUST ──→ RESOLVE
 | `SELECT_MOVE` + `COMMIT_SELECT` | R/P/S + 0.5s | REVEAL |
 | `ENTER_ADJUST` | REVEAL 후 | ADJUST · 선공이면 내 턴 · 후공이면 상대 턴 부트 |
 | `CPU_*` | 상대 ADJUST 확정 | 안내 · 후공이면 플레이어 타이머 시작 · 선공이면 조기 RESOLVE 가능 |
-| `ADJUST_*` | 수정·페이크 (한 번만 · 후공이면 상대 확정 후) | ADJUST · 선공이면 CPU 스케줄 · 양측 완료 시 즉시 RESOLVE |
+| `ADJUST_*` | 바꾸기·페이크 (한 번만 · 후공이면 상대 확정 후) | ADJUST · 선공이면 CPU 스케줄 · 양측 완료 시 즉시 RESOLVE |
 | `ADVANCE_TO_RESOLVE` | ADJUST 종료 (타이머 또는 조기) | RESOLVE |
 | `COMPLETE_RESOLVE` | RESOLVE 후 | 다음 턴 / TIE_LOOT / cell / gameover |
 | `TIE_PICK` | 아이템 획득 | SELECT |
@@ -328,7 +328,7 @@ pickOpponentMask(unlockedIds)  // 미획득 가면 우선
 
 | 가면 | 능력 | 효과 |
 |---|---|---|
-| ☺ `doodle_smile` | `extra_change` | 수정권 +1 |
+| ☺ `doodle_smile` | `extra_change` | 바꾸기 +1 |
 | ? `doodle_question` | `extra_bluff` | 페이크 +1 |
 | × `doodle_cross` | `instinct_hint` | 첫 ADJUST 본능형 힌트 (유지/바꾸기/페이크) |
 | ◑ `doodle_tails` | `force_second` | 매치 시작 동전 → 항상 후공 (이후 턴 교대) |

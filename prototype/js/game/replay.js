@@ -33,7 +33,7 @@ const KIND_LABEL = {
   select: '패 선택',
   reveal: '상황 공개',
   adjust_start: '수정 시작',
-  adjust: '수정',
+  adjust: '바꾸기',
   bluff: '페이크',
   resolve: '결과',
   penalty: '페널티',

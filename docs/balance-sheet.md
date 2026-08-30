@@ -40,7 +40,7 @@ timers.selectSec	60	패 선택 제한 시간(초). 가위·바위·보를 고르
 timers.adjustSec	15	수정 페이즈 기본 제한 시간(초)
 timers.timeWarpBonusSec	2	시간 팽창 사용 시 수정 페이즈에 더해지는 보너스 시간(초)
 match.maxPenalties	3	페널티 상한. 이 수에 도달하면 해당 플레이어 패배 등으로 처리
-match.startChanges	2	매치 시작 시 플레이어가 가진 수정(바꾸기) 횟수
+match.startChanges	2	매치 시작 시 플레이어가 가진 바꾸기 횟수
 match.startBluffs	1	매치 시작 시 플레이어가 가진 페이크 횟수
 ai.adjustChanceOnDraw	0.25	무승부일 때 AI가 수정 페이즈에서 바꾸기를 시도할 확률 (0~1)
 ai.adjustChanceWhenWinner	0.55	AI가 이기고 있을 때 수정 페이즈에서 바꾸기를 시도할 확률 (0~1)

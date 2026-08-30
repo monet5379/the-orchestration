@@ -1,6 +1,6 @@
 import { getBalance } from '../core/balance.js';
 
-/** v1: 수정권, 페이크 블러핑 자원 */
+/** v1: 바꾸기, 페이크 블러핑 자원 */
 
 /**
  * @param {object} combatant

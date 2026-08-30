@@ -50,7 +50,7 @@ export function didOpponentChange(opponent) {
 }
 
 /**
- * 수정 페이즈 — 실제 변경 / 페이크 / 유지를 구분
+ * 수정 페이즈 — 실제 바꾸기 / 페이크 / 유지를 구분
  * @param {object} opponent
  * @param {boolean} cpuBluffedThisTurn
  * @returns {'changed' | 'bluffed' | 'kept'}

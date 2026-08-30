@@ -399,7 +399,7 @@ export function reducePhase(state, action) {
             finalChoice: state.opponent.choice,
           },
         },
-        `[ADJUST] ${(adjustTimerMs / 1000).toFixed(0)}초 — 유지·변경·페이크${timeWarpNote}`,
+        `[ADJUST] ${(adjustTimerMs / 1000).toFixed(0)}초 — 유지·바꾸기·페이크${timeWarpNote}`,
         {
           kind: 'adjust_start',
           actor: 'system',

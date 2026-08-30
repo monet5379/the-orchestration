@@ -64,7 +64,7 @@ export function renderHud(container, player, opponent, turn, phase, equippedMask
       ${renderPenaltyChip(opponent, 'CPU', '상대 3/3이면 승리.')}
     </div>
     <div class="pov-hud__bottom">
-      <span class="hud-chip">수정 ${player.resources.changes}</span>
+      <span class="hud-chip">바꾸기 ${player.resources.changes}</span>
       <span class="hud-chip">페이크 ${player.resources.bluffs}</span>
       ${renderMaskLine(equippedMaskId)}
       ${itemLine}
