@@ -381,9 +381,7 @@ export function reducePhase(state, action) {
     case 'ENTER_ADJUST': {
       if (!isActiveMatch(state) || state.phase !== PHASE.REVEAL) return state;
 
-      const adjustTimerMs = getAdjustDurationMs(state);
-      const timeWarpNote =
-        state.player.activeItem === ITEM.TIME_WARP ? ' (+2s 시간 팽창)' : '';
+      const adjustTimerMs = getAdjustDurationMs();
 
       let next = appendLogAndReplay(
         {
@@ -399,7 +397,7 @@ export function reducePhase(state, action) {
             finalChoice: state.opponent.choice,
           },
         },
-        `[ADJUST] ${(adjustTimerMs / 1000).toFixed(0)}초 — 유지·바꾸기·페이크${timeWarpNote}`,
+        `[ADJUST] ${(adjustTimerMs / 1000).toFixed(0)}초 — 유지·바꾸기·페이크`,
         {
           kind: 'adjust_start',
           actor: 'system',

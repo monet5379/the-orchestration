@@ -3,12 +3,11 @@
 /** @enum {string} */
 export const ITEM = {
   INSTINCT: 'instinct',
-  TIME_WARP: 'time_warp',
   RULE_BREAK: 'rule_break',
 };
 
 /** @type {string[]} */
-export const DEFAULT_TIE_ITEMS = [ITEM.INSTINCT, ITEM.TIME_WARP, ITEM.RULE_BREAK];
+export const DEFAULT_TIE_ITEMS = [ITEM.INSTINCT, ITEM.RULE_BREAK];
 
 /** @enum {string} */
 export const INSTINCT_READING = {
@@ -22,10 +21,6 @@ export const ITEM_INFO = {
   [ITEM.INSTINCT]: {
     label: '본능',
     desc: '다음 턴 <span class="phase-term">수정 페이즈</span> 중, 상대가 <strong>유지</strong>·<strong>바꾸기</strong>·<strong>페이크</strong> 중 어떤 버튼을 눌렀는지 정확히 알려 줍니다.',
-  },
-  [ITEM.TIME_WARP]: {
-    label: '시간 팽창',
-    desc: '다음 턴 <span class="phase-term">수정 페이즈</span> 시간이 2초 연장됩니다.',
   },
   [ITEM.RULE_BREAK]: {
     label: '규칙 파괴',

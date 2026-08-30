@@ -16,7 +16,6 @@ export const BALANCE_DEFAULTS = {
   timers: {
     selectMs: 60000,
     adjustMs: 15000,
-    timeWarpBonusMs: 2000,
   },
   match: {
     maxPenalties: 3,
@@ -39,7 +38,6 @@ const SHEET_KEY_MAP = {
   'meta.version': { path: ['meta', 'version'], scale: 1 },
   'timers.selectSec': { path: ['timers', 'selectMs'], scale: 1000 },
   'timers.adjustSec': { path: ['timers', 'adjustMs'], scale: 1000 },
-  'timers.timeWarpBonusSec': { path: ['timers', 'timeWarpBonusMs'], scale: 1000 },
   'match.maxPenalties': { path: ['match', 'maxPenalties'], scale: 1 },
   'match.startChanges': { path: ['match', 'startChanges'], scale: 1 },
   'match.startBluffs': { path: ['match', 'startBluffs'], scale: 1 },

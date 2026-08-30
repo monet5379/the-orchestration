@@ -192,7 +192,7 @@ SELECT ──→ REVEAL ──→ ADJUST ──→ RESOLVE
     finalChoice: 'rock',
     resources: { changes: 2, bluffs: 1 }, // 가면 패시브로 가산 가능
     penalties: 1,
-    activeItem: 'time_warp', // TIE 아이템 (1턴)
+    activeItem: 'instinct', // TIE 아이템 (1턴)
     items: [],
   },
 
@@ -333,7 +333,7 @@ pickOpponentMask(unlockedIds)  // 미획득 가면 우선
 | × `doodle_cross` | `instinct_hint` | 첫 ADJUST 본능형 힌트 (유지/바꾸기/페이크) |
 | ◑ `doodle_tails` | `force_second` | 매치 시작 동전 → 항상 후공 (이후 턴 교대) |
 
-TIE 아이템(`instinct` / `time_warp` / `rule_break`)은 **1턴**, 가면은 **매치 패시브**.
+TIE 아이템(`instinct` / `rule_break`)은 **1턴**, 가면은 **매치 패시브**.
 
 ---
 

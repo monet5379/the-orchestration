@@ -2,8 +2,7 @@
   "meta": { "version": 1 },
   "timers": {
     "selectMs": 60000,
-    "adjustMs": 15000,
-    "timeWarpBonusMs": 2000
+    "adjustMs": 15000
   },
   "match": {
     "maxPenalties": 3,

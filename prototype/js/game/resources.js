@@ -47,12 +47,8 @@ export function spendBluff(combatant) {
 }
 
 /**
- * @param {object} state
  * @returns {number}
  */
-export function getAdjustDurationMs(state) {
-  const { timers } = getBalance();
-  const bonus =
-    state.player.activeItem === 'time_warp' ? timers.timeWarpBonusMs : 0;
-  return timers.adjustMs + bonus;
+export function getAdjustDurationMs() {
+  return getBalance().timers.adjustMs;
 }

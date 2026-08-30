@@ -38,7 +38,6 @@ key	value	#desc
 meta.version	1	밸런스 세트 버전. 기획이 수치 바꿀 때 올린다. 타이틀에 balance vN으로 표시
 timers.selectSec	60	패 선택 제한 시간(초). 가위·바위·보를 고르는 턴
 timers.adjustSec	15	수정 페이즈 기본 제한 시간(초)
-timers.timeWarpBonusSec	2	시간 팽창 사용 시 수정 페이즈에 더해지는 보너스 시간(초)
 match.maxPenalties	3	페널티 상한. 이 수에 도달하면 해당 플레이어 패배 등으로 처리
 match.startChanges	2	매치 시작 시 플레이어가 가진 바꾸기 횟수
 match.startBluffs	1	매치 시작 시 플레이어가 가진 페이크 횟수
