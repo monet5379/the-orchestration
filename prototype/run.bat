@@ -2,7 +2,8 @@
 setlocal EnableExtensions
 
 rem The Orchestration — HTML prototype launcher (Windows)
-rem Starts a local server, waits until it responds, then opens the browser.
+rem Starts a local server in the foreground, opens the browser when ready.
+rem Ctrl+C stops the server; leftover listeners on PORT are cleaned up on exit.
 
 cd /d "%~dp0"
 
@@ -48,40 +49,19 @@ exit /b 1
 echo.
 echo  Starting server...
 
-rem Server in background; this window stays attached for Ctrl+C shutdown
-start /b "" cmd /c "%SERVER_CMD%"
+rem Open browser once the server responds (runs in background)
+start /b powershell -NoProfile -WindowStyle Hidden -Command ^
+  "for ($i = 0; $i -lt 120; $i++) { try { $r = Invoke-WebRequest -Uri '%CHECK_URL%' -UseBasicParsing -TimeoutSec 2; if ($r.StatusCode -eq 200) { Start-Process '%URL%'; exit 0 } } catch { } Start-Sleep -Seconds 1 }; exit 1"
 
-echo  Waiting for server to respond...
-set /a WAIT_TRIES=0
+rem Run server in the foreground so Ctrl+C targets it
+%SERVER_CMD%
 
-:wait_loop
-set /a WAIT_TRIES+=1
+rem After Ctrl+C (and optional Y/N), free the port and close this window
+call :kill_port
+exit 0
 
-powershell -NoProfile -Command "try { $r = Invoke-WebRequest -Uri '%CHECK_URL%' -UseBasicParsing -TimeoutSec 2; if ($r.StatusCode -eq 200) { exit 0 } else { exit 1 } } catch { exit 1 }"
-if %ERRORLEVEL%==0 goto :server_ready
-
-if %WAIT_TRIES% geq 120 (
-  echo.
-  echo  ERROR: Server did not respond at %URL%
-  echo  Check that port %PORT% is free, then try again.
-  echo.
-  pause
-  exit /b 1
+:kill_port
+for /f "tokens=5" %%P in ('netstat -ano ^| findstr ":%PORT% " ^| findstr LISTENING') do (
+  taskkill /F /PID %%P >nul 2>&1
 )
-
-timeout /t 1 /nobreak >nul
-goto :wait_loop
-
-:server_ready
-echo  Server ready.
-echo  Opening browser...
-start "" "%URL%"
-echo.
-
-rem Keep launcher alive so Ctrl+C stops the background server in this session
-:keep_alive
-timeout /t 3600 /nobreak >nul
-goto :keep_alive
-
-:done
-endlocal
+exit /b 0
