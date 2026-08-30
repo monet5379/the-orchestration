@@ -12,7 +12,7 @@ import { getBalance, loadBalance, formatBalanceMeta } from './core/balance.js';
 import { MOVE } from './core/constants.js';
 // named export는 해당 모듈과 동기화. 불일치 시 SyntaxError로 boot 전체가 죽고 타이틀이 먹통처럼 보임.
 // 개발 중 캐시 재발 방지: run.bat → serve.py(no-store). ?v=는 보조 수단.
-import { planCpuAdjustAction, pickOpponentMask } from './ai/opponent.js?v=0.1.39';
+import { planCpuAdjustAction, pickOpponentMask } from './ai/opponent.js?v=0.1.40';
 import { isMatchActive } from './scenes/match.js';
 import {
   persistVictory,

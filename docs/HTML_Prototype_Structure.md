@@ -322,7 +322,8 @@ UI 핸들러(`initOverlay` 등)를 **먼저** 등록한 뒤 `preloadAudio()`는 
 
 ```javascript
 pickInitialChoice(state)
-planCpuAdjust(state)
+planCpuAdjust(state)           // draw → pickBeatingMove / else pickDifferentMove
+pickBeatingMove(current)       // 0.1.42: 무승부 카운터 (가위→바위·바위→보·보→가위)
 maybeBluff(state)
 pickTieItem(remaining)
 pickOpponentMask(unlockedIds)  // 미획득 가면 우선

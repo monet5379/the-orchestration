@@ -24,6 +24,17 @@ export function pickDifferentMove(current) {
 }
 
 /**
+ * 현재 패를 이기는 패 (무승부 시 카운터).
+ * @param {Move} current
+ * @returns {Move}
+ */
+export function pickBeatingMove(current) {
+  if (current === MOVE.SCISSORS) return MOVE.ROCK;
+  if (current === MOVE.ROCK) return MOVE.PAPER;
+  return MOVE.SCISSORS;
+}
+
+/**
  * @param {object} state
  * @returns {boolean}
  */
@@ -53,7 +64,12 @@ export function planCpuAdjust(state) {
   const current = state.opponent.finalChoice ?? state.opponent.choice;
   if (!current) return { changed: false };
 
-  return { changed: true, move: pickDifferentMove(current) };
+  const move =
+    state.partialResult === 'draw'
+      ? pickBeatingMove(current)
+      : pickDifferentMove(current);
+
+  return { changed: true, move };
 }
 
 /**

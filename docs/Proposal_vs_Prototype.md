@@ -89,7 +89,7 @@
 | ADJUST 확정 표시 | 유효 패·유지/페이크에 노란 테두리 (`is-committed`) |
 | ADJUST 조기 종료 | 나·상대 모두 결정 완료 → 즉시 RESOLVE |
 | ADJUST 상대 버튼 안내 | 기본 유지/바꾸기(페이크 위장) · 본능·가면은 페이크까지 (`opponentButtonHint`) |
-| CPU ADJUST | `planCpuAdjustAction` — 유지|바꾸기|페이크 **최종 1회** |
+| CPU ADJUST | `planCpuAdjustAction` — 유지|바꾸기|페이크 **최종 1회** · 무승부 바꾸기는 **카운터 고정** (`pickBeatingMove`, 0.1.42) |
 | REVEAL partialResult 고정 | ADJUST 후에도 천장 문구 불변 |
 | 천장·POV 높이 고정 | `--ceiling-height: 100px`, `--pov-viewport-height: 300px` |
 | ADJUST 연출 비대칭 | 내 바꾸기·페이크 무음 · **상대 페이크·바꾸기** SFX+플래시 |
@@ -160,6 +160,9 @@
 
 | 버전 | 날짜 | 변경 |
 |---|---|---|
+| 0.1.42 | 2026-08-31 | 무승부 CPU 바꾸기 → 카운터 패 고정 (`pickBeatingMove`) |
+| 0.1.41 | 2026-08-31 | 선공 ADJUST — CPU 확정 후 고민→안내 연출 |
+| 0.1.40 | 2026-08-31 | 시간 팽창 아이템 삭제 · 무승부 아이템 2종 |
 | 0.1.36 | 2026-08-30 | ADJUST 동전 의식(첫 선공) + 턴마다 교대 |
 | 0.1.37 | 2026-08-30 | 동전 — 입력으로 던지기 시작 (자동·스킵 제거) |
 | 0.1.38 | 2026-08-30 | 뒷면 가면 — 매치 시작 동전 후공 고정 |
