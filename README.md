@@ -1,9 +1,10 @@
 # The Orchestration
 
 1:1 턴제 심리 스릴러 로그라이크.
-가위·바위·보 심리전(60초 패 선택 · 30초 수정·페이크)과 승리 후 독방 메타(가면·VHS)를 검증하는 HTML 프로토타입입니다.
+가위·바위·보 심리전(60초 패 선택 · 15초 수정·페이크)과 승리 후 독방 메타(가면·VHS)를 검증하는 HTML 프로토타입입니다.
 
-**현재 빌드:** [prototype v0.1.29](./prototype/) · Step 0~6 완료
+**현재 빌드:** [prototype v0.1.30](./prototype/) · Step 0~6 완료  
+**패치노트:** [docs/patch-note/0.1.30.md](./docs/patch-note/0.1.30.md)
 
 ---
 
@@ -11,10 +12,10 @@
 
 ```bash
 cd prototype
-# Windows: run.bat 더블클릭
+# Windows: run.bat 더블클릭 (serve.py no-cache · 브라우저 자동 오픈)
 # 또는
-npx serve .
-# python -m http.server 8080
+python serve.py --port 8080
+# npx serve .
 ```
 
 ---

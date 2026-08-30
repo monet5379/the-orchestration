@@ -1,7 +1,7 @@
 # The Orchestration — HTML 프로토타입 구조
 
 > **목적:** 핵심 게임 루프(1:1 턴제 심리전 + 5초 블러핑)와 로그라이크 메타(독방·가면·VHS)를 검증하기 위한 바닐라 HTML/JS 프로토타입  
-> **프로토타입 버전:** **v0.1.29** (Step 0~6 완료)  
+> **프로토타입 버전:** **v0.1.30** (Step 0~6 완료)  
 > **관련 기획:** [The_Orchestration_Game_Proposal.pptx.txt](./The_Orchestration_Game_Proposal.pptx.txt)  
 > **기획 vs 프로토타입:** [Proposal_vs_Prototype.md](./Proposal_vs_Prototype.md)
 
@@ -37,7 +37,9 @@ the-orchestration/
 └── prototype/                 # ★ HTML 프로토타입 (공유 단위)
     ├── README.md              # 현재 상태만
     ├── ARCHIVE.md             # 버전·테스트 이력
-    ├── run.bat                # Windows: 서버 기동 → 헬스체크 → 브라우저
+    ├── run.bat                # Windows: run.ps1 위임
+    ├── run.ps1                # 숨김 서버 + 브라우저 + Ctrl+C/키 종료
+    ├── serve.py               # 정적 서버 (JS/CSS/HTML no-store)
     ├── index.html             # overlay + game-root + cell-root
     ├── css/
     │   ├── tokens.css
@@ -160,7 +162,7 @@ SELECT ──→ REVEAL ──→ ADJUST ──→ RESOLVE
 |---|---|---|---|
 | `SELECT` | 1. 동시 패 선택 | R/P/S (0.5s debounce 후 확정) | 초기 선택 |
 | `REVEAL` | 2. 상황 정보 노출 | 없음 | — |
-| `ADJUST` | 3. 수정 & 블러핑 (최대 30s) | `[유지]` / R/P/S / `[페이크]` · **한 번 확정** | 변경·페이크 · 양측 완료 시 즉시 종료 |
+| `ADJUST` | 3. 수정 & 블러핑 (최대 **15s**) | `[유지]` / R/P/S / `[페이크]` · **한 번 확정** | 최종 행동 1회 · 양측 완료 시 즉시 종료 |
 | `RESOLVE` | 4. 결과 공개 및 페널티 | 없음 | — |
 | `TIE_LOOT` | 무승부 아이템 | 선택 후 [획득] · 나 1 + CPU 1 | `pickTieItem` |
 
@@ -192,8 +194,8 @@ SELECT ──→ REVEAL ──→ ADJUST ──→ RESOLVE
   cpuAdjusted: false,
   playerAdjusted: false,  // false | 'kept' | 'changed' | 'bluffed'
   cpuBluffedThisTurn: false,
-  instinctReading: null,
-  adjustTimerMs: 30000,
+  opponentButtonHint: null, // null | 'kept' | 'changed' | 'bluffed' (진실값; UI는 본능/가면 여부로 위장)
+  adjustTimerMs: 15000,
 
   matchLog: [],             // 문자열 (디버그 #event-log)
   replay: { events: [], matchStartMs },  // VHS용 구조화 로그
@@ -218,6 +220,7 @@ SELECT ──→ REVEAL ──→ ADJUST ──→ RESOLVE
 
 - `REVEAL`: `partialResult`만 UI 노출.
 - `opponent.choice` / `finalChoice`는 기본 비노출 (`rule_break` 예외).
+- ADJUST 안내: 기본은 유지/바꾸기만(페이크→바꾸기 위장). 본능·×가면은 페이크까지 정확.
 - replay의 CPU 이벤트는 `hidden: true` → VHS에 `(hidden)` 표시.
 
 ---
@@ -260,17 +263,19 @@ SELECT ──→ REVEAL ──→ ADJUST ──→ RESOLVE
 
 `main.js`에서 `dispatch` → `reducePhase` → `render(state, save)`.
 
-**ADJUST 연출 (v0.1.27):** `CPU_BLUFF`만 페이크 SFX + POV 플래시.  
+**ADJUST 연출 (v0.1.27+):** `CPU_BLUFF` / `CPU_ADJUST`(변경) 시 SFX + POV 플래시.  
 플레이어 `ADJUST_CHANGE` / `ADJUST_BLUFF`는 무음·무플래시. SELECT 패 선택은 금속음·플래시 유지.
 
 **ADJUST 확정 (v0.1.29):** 유지·변경·페이크는 턴당 **한 번**. 확정 후 버튼 전부 잠금 · 유효 패에 노란 테두리.  
 `playerAdjusted` + `cpuAdjusted`이면 `main.js`가 타이머를 끊고 즉시 `ADVANCE_TO_RESOLVE`.
 
+**ADJUST 안내 · CPU (v0.1.30):** `opponentButtonHint`로 상대 버튼 종류 표시. CPU는 `planCpuAdjustAction`으로 최종 행동 1회 커밋. 기본 UI는 페이크→바꾸기 위장.
+
 | 액션 | 발생 | 결과 |
 |---|---|---|
 | `START_MATCH` | [이어하기] / [새 게임] / [다시 하기] | match, SELECT, turn 1 |
 | `START_NEXT_MATCH` | 독방 [다음 상대] | 장착 가면 적용 + 새 CPU 가면 |
-| `LEAVE_CELL` / `RETURN_TO_MENU` | [타이틀] | menu |
+| `LEAVE_CELL` / `RETURN_TO_MENU` | [타이틀] | menu (`phase: null`) |
 | `FORCE_WIN` / `FORCE_LOSE` | 개발자 모드 치트 | 페널티 3/3 → cell / gameover |
 | `SELECT_MOVE` + `COMMIT_SELECT` | R/P/S + 0.5s | REVEAL |
 | `ENTER_ADJUST` | REVEAL 후 | ADJUST |
@@ -284,7 +289,7 @@ SELECT ──→ REVEAL ──→ ADJUST ──→ RESOLVE
 ### boot
 
 UI 핸들러(`initOverlay` 등)를 **먼저** 등록한 뒤 `preloadAudio()`는 백그라운드 실행.  
-`run.bat`은 `js/main.js` 200 응답 확인 후 브라우저를 연다.
+`run.bat` → `run.ps1`이 `serve.py`를 띄운 뒤 브라우저를 연다 (JS/CSS/HTML no-store).
 
 ---
 
@@ -302,7 +307,7 @@ pickOpponentMask(unlockedIds)  // 미획득 가면 우선
 |---|---|---|
 | ☺ `doodle_smile` | `extra_change` | 수정권 +1 |
 | ? `doodle_question` | `extra_bluff` | 페이크 +1 |
-| × `doodle_cross` | `instinct_hint` | 첫 ADJUST 본능형 힌트 (변경/유지) |
+| × `doodle_cross` | `instinct_hint` | 첫 ADJUST 본능형 힌트 (유지/바꾸기/페이크) |
 
 TIE 아이템(`instinct` / `time_warp` / `rule_break`)은 **1턴**, 가면은 **매치 패시브**.
 
@@ -332,13 +337,13 @@ TIE 아이템(`instinct` / `time_warp` / `rule_break`)은 **1턴**, 가면은 **
 
 ```bash
 cd prototype
-# Windows: run.bat (서버 기동 → main.js 응답 대기 → 브라우저)
+# Windows: run.bat → run.ps1 + serve.py (no-store) → 브라우저
+python serve.py --port 8080
 npx serve .
-python -m http.server 8080
 ```
 
 ES Module·SFX fetch를 위해 **정적 서버 사용을 권장** (`file://` 비권장).  
-모듈 변경 후 Console에 export 오류가 보이면 **Ctrl+Shift+R**로 캐시를 비운다.
+개발 중 named export 오류가 보이면 **런처 재시작** + **Ctrl+Shift+R** (`serve.py`는 JS no-store).
 
 ---
 
@@ -354,6 +359,6 @@ ES Module·SFX fetch를 위해 **정적 서버 사용을 권장** (`file://` 비
 
 ---
 
-*문서 버전: 0.1.29 · 2026-08-29 · ADJUST commit-once · early resolve*  
+*문서 버전: 0.1.30 · 2026-08-30 · ADJUST 15s · button hints · launcher*  
 *프로토타입 이력: [`../prototype/ARCHIVE.md`](../prototype/ARCHIVE.md)*
 
