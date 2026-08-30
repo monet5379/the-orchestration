@@ -6,7 +6,7 @@ import {
   RESOLVE_DELAY_MS,
   SELECT_COMMIT_DELAY_MS,
 } from './core/timing.js';
-import { getBalance } from './core/balance.js';
+import { getBalance, loadBalance, formatBalanceMeta } from './core/balance.js';
 import { MOVE } from './core/constants.js';
 // named export는 해당 모듈과 동기화. 불일치 시 SyntaxError로 boot 전체가 죽고 타이틀이 먹통처럼 보임.
 // 개발 중 캐시 재발 방지: run.bat → serve.py(no-store). ?v=는 보조 수단.
@@ -316,9 +316,10 @@ function onTieConfirm() {
   dispatch({ type: 'TIE_PICK', itemId: state.tieLootSelection });
 }
 
-function returnToTitle() {
+async function returnToTitle() {
   clearAllTimers();
   resetCeilingScreen();
+  await loadBalance();
   dispatch({ type: 'RETURN_TO_MENU' });
 }
 
@@ -381,8 +382,9 @@ function onNextMatch() {
   }
 }
 
-function onLeaveCell() {
+async function onLeaveCell() {
   clearAllTimers();
+  await loadBalance();
   dispatch({ type: 'LEAVE_CELL' });
 }
 
@@ -395,6 +397,9 @@ function onEquipMask(maskId) {
 }
 
 async function boot() {
+  // 타이틀 진입 전 1회 로드. 매치 중에는 다시 읽지 않음.
+  await loadBalance();
+
   const buttonPanel = document.getElementById('button-panel');
   const tieLootPanel = document.getElementById('tie-loot-panel');
   const vhsPlayer = document.getElementById('vhs-player');
@@ -475,6 +480,7 @@ async function boot() {
   console.log('[Orchestration] v0.1.30 — ADJUST 15s · button hints · launcher', {
     state,
     save,
+    balance: formatBalanceMeta(),
   });
 }
 

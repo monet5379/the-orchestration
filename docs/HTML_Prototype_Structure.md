@@ -1,7 +1,7 @@
 # The Orchestration — HTML 프로토타입 구조
 
 > **목적:** 핵심 게임 루프(1:1 턴제 심리전 + 5초 블러핑)와 로그라이크 메타(독방·가면·VHS)를 검증하기 위한 바닐라 HTML/JS 프로토타입  
-> **프로토타입 버전:** **v0.1.31** (Step 0~6 완료 · 밸런스 `balance.js`)  
+> **프로토타입 버전:** **v0.1.32** (Step 0~6 완료 · 밸런스 `loadBalance` + 로컬 JSON)  
 > **직전 공유:** v0.1.30  
 
 > **관련 기획:** [The_Orchestration_Game_Proposal.pptx.txt](./The_Orchestration_Game_Proposal.pptx.txt)  
@@ -43,6 +43,8 @@ the-orchestration/
     ├── run.ps1                # 숨김 서버 + 브라우저 + Ctrl+C/키 종료
     ├── serve.py               # 정적 서버 (JS/CSS/HTML no-store)
     ├── index.html             # overlay + game-root + cell-root
+    ├── data/
+    │   └── balance.json       # 기획 수치 로드 소스 (시트 URL로 교체 예정)
     ├── css/
     │   ├── tokens.css
     │   ├── layout.css
@@ -55,7 +57,7 @@ the-orchestration/
     ├── js/
     │   ├── main.js            # dispatch, 타이머, boot, save I/O
     │   ├── core/
-    │   │   ├── balance.js     # ★ 기획 수치 BALANCE_DEFAULTS · getBalance()
+    │   │   ├── balance.js     # ★ BALANCE_DEFAULTS · getBalance · loadBalance
     │   │   ├── constants.js   # MOVE / PHASE / SCENE / PHASE_LABEL
     │   │   ├── timing.js      # 연출 딜레이 (REVEAL/RESOLVE/COMMIT)
     │   │   ├── event-bus.js   # stub
@@ -128,6 +130,7 @@ the-orchestration/
 ```
 
 타이머·페널티·시작 자원·AI 확률은 `getBalance()` (`balance.js`).  
+부팅·타이틀 복귀 시 `loadBalance()`가 `data/balance.json`을 읽어 `current`를 교체(실패 시 defaults 유지). 매치 중에는 다시 읽지 않는다.  
 `constants.js`는 enum·라벨, `timing.js`는 연출용 딜레이만 담당.
 
 ---
@@ -364,6 +367,6 @@ ES Module·SFX fetch를 위해 **정적 서버 사용을 권장** (`file://` 비
 
 ---
 
-*문서 버전: 0.1.31 · 2026-08-30 · balance.js 일원화 · SELECT 60s · ADJUST 15s · commit-once · launcher*  
+*문서 버전: 0.1.32 · 2026-08-30 · loadBalance + 로컬 JSON · SELECT 60s · ADJUST 15s · commit-once · launcher*  
 *프로토타입 이력: [`../prototype/ARCHIVE.md`](../prototype/ARCHIVE.md)*
 

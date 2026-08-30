@@ -1,6 +1,15 @@
 import { SCENE } from '../core/constants.js';
+import { formatBalanceMeta } from '../core/balance.js';
 import { renderPenaltyPips } from '../game/penalties.js';
 import { formatSaveSummary, hasSaveProgress } from '../core/storage.js';
+
+/**
+ * 타이틀에 로드된 balance meta.version · 출처 표시
+ */
+export function updateBalanceMetaUi() {
+  const el = document.getElementById('menu-balance-meta');
+  if (el) el.textContent = formatBalanceMeta();
+}
 
 /**
  * @param {boolean} showConfirm
@@ -61,8 +70,9 @@ export function renderOverlay(state, save) {
 
   if (menuScreen) {
     menuScreen.hidden = !inMenu;
-    if (inMenu && save) {
-      updateMenuButtons(save);
+    if (inMenu) {
+      updateBalanceMetaUi();
+      if (save) updateMenuButtons(save);
     }
     if (!inMenu) {
       setNewGameConfirmVisible(false);

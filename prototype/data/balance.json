@@ -1,0 +1,22 @@
+{
+  "meta": { "version": 1 },
+  "timers": {
+    "selectMs": 60000,
+    "adjustMs": 15000,
+    "timeWarpBonusMs": 2000
+  },
+  "match": {
+    "maxPenalties": 3,
+    "startChanges": 2,
+    "startBluffs": 1
+  },
+  "ai": {
+    "adjustChanceOnDraw": 0.25,
+    "adjustChanceWhenWinner": 0.55,
+    "bluffChance": 0.45,
+    "adjustDelayMinMs": 1000,
+    "adjustDelayMaxMs": 4000,
+    "bluffDelayMinMs": 300,
+    "bluffDelayMaxMs": 1100
+  }
+}
