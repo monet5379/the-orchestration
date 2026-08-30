@@ -201,6 +201,8 @@ SELECT ──→ REVEAL ──→ ADJUST ──→ RESOLVE
   partialResult: 'winner_exists',
   lastResolve: { outcome, playerMove, opponentMove },
   initiative: 'player',     // 'player' | 'opponent' — 이번 턴 ADJUST 선공. 0.1.36: 매치 시작 동전 · 턴마다 교대
+  coinPending: false,       // 매치 시작 동전 의식 중 (SELECT 잠금)
+  coinRevealed: false,      // 의식 중 결과 문구
   cpuAdjusted: false,       // 조기 RESOLVE · 후공일 때 !cpuAdjusted → 상대 턴
   playerAdjusted: false,  // false | 'kept' | 'changed' | 'bluffed'
   cpuBluffedThisTurn: false,
@@ -288,7 +290,7 @@ SELECT ──→ REVEAL ──→ ADJUST ──→ RESOLVE
 **ADJUST 선공 (v0.1.35+):** `initiative === 'player'`일 때.  
 `ENTER_ADJUST` → `beginPlayerAdjustTurn`(「내 턴」·타이머 즉시) → 플레이어 `ADJUST_*` → `beginCpuAdjustAfterPlayer` → `CPU_*` → 안내 → 양측 완료 시 RESOLVE.
 
-**ADJUST 순서 (v0.1.36):** 매치 시작 `createMatchState`에서 `initiative` 50/50. `advanceToNextTurn`에서 토글. UI 「이번 수정: 선공/후공」.
+**ADJUST 순서 (v0.1.36):** 매치 시작 `createMatchState`에서 `initiative` 50/50. 짧은 동전 의식(`coinPending`) 후 SELECT. `advanceToNextTurn`에서 토글. UI 「이번 수정: 선공/후공」.
 
 | 액션 | 발생 | 결과 |
 |---|---|---|
@@ -379,6 +381,6 @@ ES Module·SFX fetch를 위해 **정적 서버 사용을 권장** (`file://` 비
 
 ---
 
-*문서 버전: 0.1.36 · 2026-08-30 · ADJUST 동전+턴 교대(initiative) · SELECT 동시 · loadBalance · commit-once · launcher*  
+*문서 버전: 0.1.36 · 2026-08-30 · ADJUST 동전 의식+턴 교대(initiative) · SELECT 동시 · loadBalance · commit-once · launcher*  
 *프로토타입 이력: [`../prototype/ARCHIVE.md`](../prototype/ARCHIVE.md)*
 

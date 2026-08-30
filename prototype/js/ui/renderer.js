@@ -138,13 +138,20 @@ export function render(state, save) {
         state.player,
         state.playerAdjusted,
         isWaitingForOpponentAdjust(state),
+        Boolean(state.coinPending),
       );
     } else {
       setButtonPanelEnabled(buttonPanel, '__disabled__', state.player);
     }
   }
 
-  if (state.phase !== PHASE.ADJUST && state.phase !== PHASE.SELECT) {
+  if (
+    state.phase !== PHASE.ADJUST &&
+    state.phase !== PHASE.SELECT
+  ) {
+    stopCountdown();
+  }
+  if (state.phase === PHASE.SELECT && state.coinPending) {
     stopCountdown();
   }
 }
@@ -294,6 +301,14 @@ function renderPlayerDisplay(state) {
 
   if (state.player.choice) {
     return { text: `선택: ${MOVE_LABELS[state.player.choice]}` };
+  }
+
+  if (state.phase === PHASE.SELECT && state.coinPending) {
+    if (state.coinRevealed) {
+      const order = state.initiative === 'player' ? '선공' : '후공';
+      return { text: `첫 수정: ${order}` };
+    }
+    return { text: '수정 선공 결정…' };
   }
 
   if (state.phase === PHASE.SELECT) {

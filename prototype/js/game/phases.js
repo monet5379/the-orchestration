@@ -106,6 +106,8 @@ function advanceToNextTurn(state, player, opponent) {
       phase: PHASE.SELECT,
       turn: nextTurn,
       initiative: nextInitiative,
+      coinPending: false,
+      coinRevealed: false,
       partialResult: null,
       lastResolve: null,
       cpuAdjusted: false,
@@ -215,6 +217,16 @@ export function reducePhase(state, action) {
       return initMatchFromOptions(createNextMatchState(action.save));
     }
 
+    case 'REVEAL_COIN': {
+      if (!isActiveMatch(state) || !state.coinPending) return state;
+      return { ...state, coinRevealed: true };
+    }
+
+    case 'FINISH_COIN': {
+      if (!isActiveMatch(state) || !state.coinPending) return state;
+      return { ...state, coinPending: false, coinRevealed: false };
+    }
+
     case 'RETURN_TO_MENU':
     case 'LEAVE_CELL': {
       return createInitialState();
@@ -286,6 +298,7 @@ export function reducePhase(state, action) {
 
     case 'SELECT_MOVE': {
       if (!isActiveMatch(state) || state.phase !== PHASE.SELECT) return state;
+      if (state.coinPending) return state;
       if (!action.move) return state;
 
       const player = {
@@ -307,6 +320,7 @@ export function reducePhase(state, action) {
 
     case 'COMMIT_SELECT': {
       if (!isActiveMatch(state) || state.phase !== PHASE.SELECT) return state;
+      if (state.coinPending) return state;
       if (!state.player.choice) return state;
 
       const cpuMove = pickInitialChoice(state);
@@ -673,10 +687,11 @@ export function isWaitingForOpponentAdjust(state) {
 
 /**
  * @param {string} phase
+ * @param {boolean} [coinPending]
  * @returns {boolean}
  */
-export function canSelectMove(phase) {
-  return phase === PHASE.SELECT;
+export function canSelectMove(phase, coinPending = false) {
+  return phase === PHASE.SELECT && !coinPending;
 }
 
 /**

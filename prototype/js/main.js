@@ -5,12 +5,14 @@ import {
   REVEAL_DELAY_MS,
   RESOLVE_DELAY_MS,
   SELECT_COMMIT_DELAY_MS,
+  COIN_TOSS_MS,
+  COIN_RESULT_MS,
 } from './core/timing.js';
 import { getBalance, loadBalance, formatBalanceMeta } from './core/balance.js';
 import { MOVE } from './core/constants.js';
 // named export는 해당 모듈과 동기화. 불일치 시 SyntaxError로 boot 전체가 죽고 타이틀이 먹통처럼 보임.
 // 개발 중 캐시 재발 방지: run.bat → serve.py(no-store). ?v=는 보조 수단.
-import { planCpuAdjustAction, pickOpponentMask } from './ai/opponent.js?v=0.1.30';
+import { planCpuAdjustAction, pickOpponentMask } from './ai/opponent.js?v=0.1.36';
 import { isMatchActive } from './scenes/match.js';
 import {
   persistVictory,
@@ -20,7 +22,7 @@ import {
 import { loadOrCreateSave, clearSave, hasSaveProgress } from './core/storage.js';
 import { initButtonPanel, getAdjustTimerElement } from './ui/button-panel.js';
 import { initTieLootPanel } from './ui/tie-loot-panel.js';
-import { initOverlay, setNewGameConfirmVisible } from './ui/overlay.js?v=0.1.30';
+import { initOverlay, setNewGameConfirmVisible } from './ui/overlay.js?v=0.1.36';
 import { render, setEquipMaskHandler } from './ui/renderer.js';
 import { startAdjustCountdown, stopCountdown, showOpponentTurnWait } from './ui/countdown.js';
 import { preloadAudio, playBluffClick, playMetalClick } from './ui/audio.js';
@@ -50,6 +52,7 @@ function clearAllTimers() {
   for (const id of phaseTimers) clearTimeout(id);
   phaseTimers.length = 0;
   stopCountdown();
+  detachCoinSkip();
 }
 
 /**
@@ -132,12 +135,13 @@ function dispatch(action) {
  */
 function schedulePhaseTransitions(lastActionType, prevPhase) {
   // 턴 중 SELECT 재진입만 여기서 부트.
-  // 매치 시작(START_*)은 startMatch / onNextMatch에서 beginSelectPhase를 직접 호출한다.
+  // 매치 시작(START_*)은 beginCoinCeremony → FINISH_COIN 후 beginSelectPhase.
   if (
     state.phase === PHASE.SELECT &&
     prevPhase !== PHASE.SELECT &&
     lastActionType !== 'START_MATCH' &&
-    lastActionType !== 'START_NEXT_MATCH'
+    lastActionType !== 'START_NEXT_MATCH' &&
+    lastActionType !== 'FINISH_COIN'
   ) {
     beginSelectPhase();
   }
@@ -216,7 +220,11 @@ function beginSelectPhase() {
       duration,
       () => {
         stopCountdown();
-        if (isMatchActive(state) && state.phase === PHASE.SELECT) {
+        if (
+          isMatchActive(state) &&
+          state.phase === PHASE.SELECT &&
+          !state.coinPending
+        ) {
           onSelectTimeout();
         }
       },
@@ -225,7 +233,11 @@ function beginSelectPhase() {
   } else {
     trackTimer(
       setTimeout(() => {
-        if (isMatchActive(state) && state.phase === PHASE.SELECT) {
+        if (
+          isMatchActive(state) &&
+          state.phase === PHASE.SELECT &&
+          !state.coinPending
+        ) {
           onSelectTimeout();
         }
       }, duration),
@@ -233,11 +245,77 @@ function beginSelectPhase() {
   }
 }
 
+/** @type {((event: Event) => void) | null} */
+let coinSkipListener = null;
+
+function detachCoinSkip() {
+  if (!coinSkipListener) return;
+  document.removeEventListener('click', coinSkipListener, true);
+  document.removeEventListener('keydown', coinSkipListener, true);
+  coinSkipListener = null;
+}
+
+function completeCoinAndSelect() {
+  detachCoinSkip();
+  if (!isMatchActive(state) || !state.coinPending) return;
+  dispatch({ type: 'FINISH_COIN' });
+  if (state.phase === PHASE.SELECT && !state.coinPending) {
+    beginSelectPhase();
+  }
+}
+
+/**
+ * @param {Event} event
+ */
+function skipCoinCeremony(event) {
+  if (!isMatchActive(state) || !state.coinPending) return;
+  if (event.type === 'keydown') {
+    const key = /** @type {KeyboardEvent} */ (event).key;
+    if (key !== ' ' && key !== 'Enter' && key !== 'Escape') return;
+    event.preventDefault();
+  }
+  // 남은 의식 타이머만 취소 (detach는 complete에서)
+  if (commitTimer) {
+    clearTimeout(commitTimer);
+    commitTimer = null;
+  }
+  for (const id of phaseTimers) clearTimeout(id);
+  phaseTimers.length = 0;
+  stopCountdown();
+  completeCoinAndSelect();
+}
+
+function beginCoinCeremony() {
+  if (!isMatchActive(state) || !state.coinPending) {
+    if (state.phase === PHASE.SELECT) beginSelectPhase();
+    return;
+  }
+
+  detachCoinSkip();
+  coinSkipListener = (event) => skipCoinCeremony(event);
+  document.addEventListener('click', coinSkipListener, true);
+  document.addEventListener('keydown', coinSkipListener, true);
+
+  trackTimer(
+    setTimeout(() => {
+      if (!isMatchActive(state) || !state.coinPending) return;
+      dispatch({ type: 'REVEAL_COIN' });
+      trackTimer(
+        setTimeout(() => {
+          completeCoinAndSelect();
+        }, COIN_RESULT_MS),
+      );
+    }, COIN_TOSS_MS),
+  );
+}
+
 function onSelectTimeout() {
   if (commitTimer) {
     clearTimeout(commitTimer);
     commitTimer = null;
   }
+
+  if (state.coinPending) return;
 
   if (!state.player.choice) {
     const moves = [MOVE.ROCK, MOVE.PAPER, MOVE.SCISSORS];
@@ -331,6 +409,7 @@ function beginPlayerAdjustTurn() {
  */
 function onSelectMove(move) {
   if (!isMatchActive(state)) return;
+  if (state.coinPending) return;
 
   if (state.phase === PHASE.SELECT) {
     dispatch({ type: 'SELECT_MOVE', move });
@@ -338,7 +417,11 @@ function onSelectMove(move) {
     if (commitTimer) clearTimeout(commitTimer);
     commitTimer = setTimeout(() => {
       commitTimer = null;
-      if (isMatchActive(state) && state.phase === PHASE.SELECT) {
+      if (
+        isMatchActive(state) &&
+        state.phase === PHASE.SELECT &&
+        !state.coinPending
+      ) {
         dispatch({ type: 'COMMIT_SELECT' });
       }
     }, SELECT_COMMIT_DELAY_MS);
@@ -398,9 +481,8 @@ function startMatch() {
     opponentMaskId: pickOpponentMask(save.masks.unlocked),
     equippedMaskId: save.masks.equipped,
   });
-  // 타이틀→매치 SELECT 부트는 스케줄러 phase 비교에 의존하지 않고 여기서 명시 호출
   if (state.phase === PHASE.SELECT) {
-    beginSelectPhase();
+    beginCoinCeremony();
   }
 }
 
@@ -433,7 +515,7 @@ function onNextMatch() {
   resetCeilingScreen();
   dispatch({ type: 'START_NEXT_MATCH', save });
   if (state.phase === PHASE.SELECT) {
-    beginSelectPhase();
+    beginCoinCeremony();
   }
 }
 
@@ -532,7 +614,7 @@ async function boot() {
 
   void preloadAudio();
 
-  console.log('[Orchestration] v0.1.30 — ADJUST 15s · button hints · launcher', {
+  console.log('[Orchestration] v0.1.36 — ADJUST coin ceremony + turn alternate', {
     state,
     save,
     balance: formatBalanceMeta(),

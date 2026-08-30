@@ -111,6 +111,7 @@ export function getAdjustTimerElement(container) {
  * @param {object} player
  * @param {false | 'kept' | 'changed' | 'bluffed'} [playerAdjusted]
  * @param {boolean} [waitingForOpponent]
+ * @param {boolean} [coinPending]
  */
 export function setButtonPanelEnabled(
   container,
@@ -118,6 +119,7 @@ export function setButtonPanelEnabled(
   player,
   playerAdjusted = false,
   waitingForOpponent = false,
+  coinPending = false,
 ) {
   const adjustTimer = container.querySelector('#adjust-timer');
   const adjustRow = container.querySelector('#adjust-actions');
@@ -130,8 +132,9 @@ export function setButtonPanelEnabled(
   const forceDisabled = phase === '__disabled__';
   const committed = Boolean(playerAdjusted);
   const current = player.finalChoice ?? player.choice;
+  const selectLocked = coinPending;
 
-  if (adjustTimer && (forceDisabled || (!inSelect && !inAdjust))) {
+  if (adjustTimer && (forceDisabled || selectLocked || (!inSelect && !inAdjust))) {
     adjustTimer.hidden = true;
   }
 
@@ -144,10 +147,10 @@ export function setButtonPanelEnabled(
       inAdjust && !forceDisabled && committed && btn.dataset.move === current;
     btn.classList.toggle('is-committed', showCommit);
 
-    if (forceDisabled) {
+    if (forceDisabled || selectLocked) {
       btn.disabled = true;
     } else if (inSelect) {
-      btn.disabled = !canSelectMove(phase);
+      btn.disabled = !canSelectMove(phase, coinPending);
     } else if (inAdjust) {
       if (committed || waitingForOpponent) {
         btn.disabled = true;
@@ -162,7 +165,9 @@ export function setButtonPanelEnabled(
 
   if (confirmBtn) {
     confirmBtn.disabled =
-      forceDisabled || !canAdjustConfirm(phase, committed, waitingForOpponent);
+      forceDisabled ||
+      selectLocked ||
+      !canAdjustConfirm(phase, committed, waitingForOpponent);
     confirmBtn.classList.toggle(
       'is-committed',
       inAdjust && !forceDisabled && playerAdjusted === 'kept',
@@ -171,7 +176,9 @@ export function setButtonPanelEnabled(
 
   if (bluffBtn) {
     bluffBtn.disabled =
-      forceDisabled || !canAdjustBluff(phase, player, committed, waitingForOpponent);
+      forceDisabled ||
+      selectLocked ||
+      !canAdjustBluff(phase, player, committed, waitingForOpponent);
     bluffBtn.classList.toggle(
       'is-committed',
       inAdjust && !forceDisabled && playerAdjusted === 'bluffed',

@@ -37,6 +37,10 @@ export function createInitialState() {
     opponentButtonHint: null,
     /** @type {'player' | 'opponent'} ADJUST 선공. 매치 시작 동전 · 턴마다 교대 (MENU에서는 미사용) */
     initiative: 'player',
+    /** 매치 시작 동전 의식 중 — SELECT 입력·타이머 차단 */
+    coinPending: false,
+    /** 의식 중 결과 문구 노출 여부 */
+    coinRevealed: false,
     adjustTimerMs: getBalance().timers.adjustMs,
     tieItems: [],
     tieItemsRemaining: [],
@@ -70,6 +74,9 @@ export function createMatchState(options = {}) {
     opponentButtonHint: null,
     /** @type {'player' | 'opponent'} ADJUST 선공. 0.1.36: 매치 시작 동전 50/50 · 이후 턴마다 교대 */
     initiative: Math.random() < 0.5 ? 'player' : 'opponent',
+    /** 매치 시작만 true — 동전 의식 후 FINISH_COIN */
+    coinPending: true,
+    coinRevealed: false,
     adjustTimerMs: getBalance().timers.adjustMs,
     tieItems: [],
     tieItemsRemaining: [],
