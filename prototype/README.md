@@ -4,8 +4,8 @@
 **현재 버전: v0.1.30** (Step 0~6 완료)
 
 버전별 변경·수동 테스트 이력 → [`ARCHIVE.md`](./ARCHIVE.md)  
-공유용 패치노트 → [`../docs/patch-note/external/0.1.30.md`](../docs/patch-note/external/0.1.30.md)  
-내부(프로그래머) → [`../docs/patch-note/internal/0.1.30.md`](../docs/patch-note/internal/0.1.30.md)
+공유용 패치노트 → [`../docs/patch-note/external/0.1.42.md`](../docs/patch-note/external/0.1.42.md)  
+내부(프로그래머) → [`../docs/patch-note/internal/0.1.42.md`](../docs/patch-note/internal/0.1.42.md)
 
 ---
 

@@ -2,8 +2,8 @@
 
 프로토타입 **과거 버전 변경점**과 **수동 테스트 체크리스트**를 모은다.  
 현재 상태만 보려면 [`README.md`](./README.md).  
-공유 패치노트 → [`../docs/patch-note/external/0.1.30.md`](../docs/patch-note/external/0.1.30.md) ·  
-내부(프로그래머) → [`../docs/patch-note/internal/0.1.30.md`](../docs/patch-note/internal/0.1.30.md)
+공유 패치노트 → [`../docs/patch-note/external/0.1.42.md`](../docs/patch-note/external/0.1.42.md) ·  
+내부(프로그래머) → [`../docs/patch-note/internal/0.1.42.md`](../docs/patch-note/internal/0.1.42.md)
 
 제품 버전은 **0.1.x** (구 1.x / 2.0 표기는 0.1.x로 소급 재번호).
 
