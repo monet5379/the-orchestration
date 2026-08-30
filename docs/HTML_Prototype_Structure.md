@@ -266,10 +266,9 @@ SELECT ──→ REVEAL ──→ ADJUST ──→ RESOLVE
 **ADJUST 연출 (v0.1.27+):** `CPU_BLUFF` / `CPU_ADJUST`(변경) 시 SFX + POV 플래시.  
 플레이어 `ADJUST_CHANGE` / `ADJUST_BLUFF`는 무음·무플래시. SELECT 패 선택은 금속음·플래시 유지.
 
-**ADJUST 확정 (v0.1.29):** 유지·변경·페이크는 턴당 **한 번**. 확정 후 버튼 전부 잠금 · 유효 패에 노란 테두리.  
-`playerAdjusted` + `cpuAdjusted`이면 `main.js`가 타이머를 끊고 즉시 `ADVANCE_TO_RESOLVE`.
-
-**ADJUST 안내 · CPU (v0.1.30):** `opponentButtonHint`로 상대 버튼 종류 표시. CPU는 `planCpuAdjustAction`으로 최종 행동 1회 커밋. 기본 UI는 페이크→바꾸기 위장.
+**ADJUST 확정 · 안내 (v0.1.30):** 유지·변경·페이크는 턴당 **한 번**. 확정 후 버튼 전부 잠금 · 유효 패에 노란 테두리.  
+`playerAdjusted` + `cpuAdjusted`이면 `main.js`가 타이머를 끊고 즉시 `ADVANCE_TO_RESOLVE`.  
+`opponentButtonHint`로 상대 버튼 종류 표시. CPU는 `planCpuAdjustAction`으로 최종 행동 1회 커밋. 기본 UI는 페이크→바꾸기 위장.
 
 | 액션 | 발생 | 결과 |
 |---|---|---|
@@ -359,6 +358,6 @@ ES Module·SFX fetch를 위해 **정적 서버 사용을 권장** (`file://` 비
 
 ---
 
-*문서 버전: 0.1.30 · 2026-08-30 · ADJUST 15s · button hints · launcher*  
+*문서 버전: 0.1.30 · 2026-08-30 · SELECT 60s · ADJUST 15s · commit-once · button hints · launcher*  
 *프로토타입 이력: [`../prototype/ARCHIVE.md`](../prototype/ARCHIVE.md)*
 
