@@ -35,6 +35,26 @@ function getAdjustOrderLabel(state) {
     : '이번 수정: 후공';
 }
 
+/**
+ * 선공·적 후공 확정 비트 — 버튼 안내 (본능/가면/공개 위장)
+ * @param {object} state
+ * @param {string} orderLine
+ * @returns {{ html: string }}
+ */
+function formatOpponentButtonReveal(state, orderLine) {
+  const parts = [orderLine, '상대가 버튼을 선택합니다'];
+
+  if (state.player.activeItem === ITEM.INSTINCT && state.opponentButtonHint) {
+    parts.push(getInstinctDisplayHtml(state.opponentButtonHint));
+  } else if (isMaskInstinctActive(state) && state.opponentButtonHint) {
+    parts.push(getMaskInstinctDisplayHtml(state.opponentButtonHint));
+  } else if (state.opponentButtonHint) {
+    parts.push(getPublicOpponentButtonText(state.opponentButtonHint));
+  }
+
+  return { html: parts.join('<br>') };
+}
+
 /** @type {(maskId: string) => void} */
 let onEquipMaskHandler = () => {};
 
@@ -233,6 +253,17 @@ function renderPlayerDisplay(state) {
 
   if (state.phase === PHASE.ADJUST) {
     const orderLine = getAdjustOrderLabel(state);
+
+    if (state.opponentAdjustBeat === 'thinking') {
+      return {
+        html: [orderLine, '상대가 버튼을 고민합니다…'].join('<br>'),
+      };
+    }
+
+    if (state.opponentAdjustBeat === 'revealed') {
+      return formatOpponentButtonReveal(state, orderLine);
+    }
+
     if (isWaitingForOpponentAdjust(state)) {
       const lines = [orderLine, '상대 턴'];
       if (state.player.activeItem === ITEM.INSTINCT) {

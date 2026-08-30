@@ -121,6 +121,7 @@ function advanceToNextTurn(state, player, opponent) {
       playerAdjusted: false,
       cpuBluffedThisTurn: false,
       opponentButtonHint: null,
+      opponentAdjustBeat: null,
       tieItemsRemaining: [],
       tieLootSelection: null,
       player: resetCombatantChoice(player),
@@ -204,7 +205,7 @@ function initMatchFromOptions(baseState) {
 
 /**
  * @param {object} state
- * @param {{ type: string, move?: Move, itemId?: string, matchState?: object, save?: object, maskId?: string }} action
+ * @param {{ type: string, move?: Move, itemId?: string, matchState?: object, save?: object, maskId?: string, beat?: null | 'thinking' | 'revealed' }} action
  * @returns {object}
  */
 export function reducePhase(state, action) {
@@ -359,6 +360,7 @@ export function reducePhase(state, action) {
           playerAdjusted: false,
           cpuBluffedThisTurn: false,
           opponentButtonHint: null,
+          opponentAdjustBeat: null,
           opponent: {
             ...state.opponent,
             choice: cpuMove,
@@ -388,6 +390,7 @@ export function reducePhase(state, action) {
           ...state,
           phase: PHASE.ADJUST,
           adjustTimerMs,
+          opponentAdjustBeat: null,
           player: {
             ...state.player,
             finalChoice: state.player.choice,
@@ -541,6 +544,7 @@ export function reducePhase(state, action) {
         ...state,
         phase: PHASE.RESOLVE,
         opponentButtonHint: null,
+        opponentAdjustBeat: null,
         player,
         opponent,
         lastResolve: {
@@ -563,6 +567,15 @@ export function reducePhase(state, action) {
           },
         },
       );
+    }
+
+    case 'SET_OPPONENT_ADJUST_BEAT': {
+      if (!isActiveMatch(state) || state.phase !== PHASE.ADJUST) return state;
+      const beat = action.beat;
+      if (beat !== 'thinking' && beat !== 'revealed' && beat !== null) {
+        return state;
+      }
+      return { ...state, opponentAdjustBeat: beat };
     }
 
     case 'TIE_PICK': {
@@ -678,6 +691,7 @@ export function reducePhase(state, action) {
             tieLootSelection: tieItemsRemaining[0],
             lastResolve: state.lastResolve,
             opponentButtonHint: null,
+            opponentAdjustBeat: null,
             cpuBluffedThisTurn: false,
             player: clearActiveItem(player),
             opponent: clearActiveItem(opponent),

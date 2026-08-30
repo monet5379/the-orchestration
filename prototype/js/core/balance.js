@@ -30,6 +30,8 @@ export const BALANCE_DEFAULTS = {
     adjustDelayMaxMs: 4000,
     bluffDelayMinMs: 300,
     bluffDelayMaxMs: 1100,
+    /** 선공 시 CPU 확정 후 고민→안내 각 비트 유지(ms) */
+    adjustRevealHoldMs: 1000,
   },
 };
 
@@ -48,6 +50,7 @@ const SHEET_KEY_MAP = {
   'ai.adjustDelayMaxSec': { path: ['ai', 'adjustDelayMaxMs'], scale: 1000 },
   'ai.bluffDelayMinSec': { path: ['ai', 'bluffDelayMinMs'], scale: 1000 },
   'ai.bluffDelayMaxSec': { path: ['ai', 'bluffDelayMaxMs'], scale: 1000 },
+  'ai.adjustRevealHoldSec': { path: ['ai', 'adjustRevealHoldMs'], scale: 1000 },
 };
 
 /** @type {typeof BALANCE_DEFAULTS} */

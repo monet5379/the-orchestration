@@ -208,6 +208,7 @@ SELECT ──→ REVEAL ──→ ADJUST ──→ RESOLVE
   playerAdjusted: false,  // false | 'kept' | 'changed' | 'bluffed'
   cpuBluffedThisTurn: false,
   opponentButtonHint: null, // null | 'kept' | 'changed' | 'bluffed' (진실값; UI는 본능/가면 여부로 위장)
+  opponentAdjustBeat: null, // null | 'thinking' | 'revealed' — 선공·적 후공 확정 연출 (0.1.41)
   adjustTimerMs: 15000,     // 플레이어 ADJUST 턴에만 카운트다운
 
   matchLog: [],             // 문자열 (디버그 #event-log)
@@ -288,8 +289,8 @@ SELECT ──→ REVEAL ──→ ADJUST ──→ RESOLVE
 `ENTER_ADJUST` → `beginOpponentAdjustTurn`(「상대 턴」·패널 잠금·틱 없음) → `CPU_*` → 안내 → `beginPlayerAdjustTurn`(내 `adjustTimerMs`).  
 대기 중 `isWaitingForOpponentAdjust`로 플레이어 `ADJUST_*` 거부.
 
-**ADJUST 선공 (v0.1.35+):** `initiative === 'player'`일 때.  
-`ENTER_ADJUST` → `beginPlayerAdjustTurn`(「내 턴」·타이머 즉시) → 플레이어 `ADJUST_*` → `beginCpuAdjustAfterPlayer` → `CPU_*` → 안내 → 양측 완료 시 RESOLVE.
+**ADJUST 선공 (v0.1.35+ / 연출 v0.1.41):** `initiative === 'player'`일 때.  
+`ENTER_ADJUST` → `beginPlayerAdjustTurn`(「내 턴」·타이머 즉시) → 플레이어 `ADJUST_*` → `beginCpuAdjustAfterPlayer` → `CPU_*` → `opponentAdjustBeat` 고민→안내(`ai.adjustRevealHoldMs`×2) → RESOLVE.
 
 **ADJUST 순서 (v0.1.37):** 매치 시작 `createMatchState`에서 `initiative` 50/50. 동전은 **입력으로 시작**(`coinAwaitingInput`) 후 SELECT. `advanceToNextTurn`에서 토글. UI 「이번 수정: 선공/후공」.
 
@@ -301,7 +302,8 @@ SELECT ──→ REVEAL ──→ ADJUST ──→ RESOLVE
 | `FORCE_WIN` / `FORCE_LOSE` | 개발자 모드 치트 | 페널티 3/3 → cell / gameover |
 | `SELECT_MOVE` + `COMMIT_SELECT` | R/P/S + 0.5s | REVEAL |
 | `ENTER_ADJUST` | REVEAL 후 | ADJUST · 선공이면 내 턴 · 후공이면 상대 턴 부트 |
-| `CPU_*` | 상대 ADJUST 확정 | 안내 · 후공이면 플레이어 타이머 시작 · 선공이면 조기 RESOLVE 가능 |
+| `CPU_*` | 상대 ADJUST 확정 | 안내 · 후공이면 플레이어 타이머 시작 · 선공이면 고민→안내 홀드 후 RESOLVE |
+| `SET_OPPONENT_ADJUST_BEAT` | 선공 CPU 확정 후 | `thinking` / `revealed` 연출 비트 |
 | `ADJUST_*` | 바꾸기·페이크 (한 번만 · 후공이면 상대 확정 후) | ADJUST · 선공이면 CPU 스케줄 · 양측 완료 시 즉시 RESOLVE |
 | `ADVANCE_TO_RESOLVE` | ADJUST 종료 (타이머 또는 조기) | RESOLVE |
 | `COMPLETE_RESOLVE` | RESOLVE 후 | 다음 턴 / TIE_LOOT / cell / gameover |

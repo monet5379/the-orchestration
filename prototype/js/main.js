@@ -179,7 +179,17 @@ function schedulePhaseTransitions(lastActionType, prevPhase) {
       lastActionType === 'CPU_ADJUST' ||
       lastActionType === 'CPU_BLUFF')
   ) {
-    maybeAdvanceAdjustEarly();
+    // 선공·적 후공: CPU 확정 직후 안내 연출 — 즉시 RESOLVE 금지
+    if (
+      (lastActionType === 'CPU_ADJUST' || lastActionType === 'CPU_BLUFF') &&
+      state.initiative === 'player' &&
+      state.playerAdjusted &&
+      state.cpuAdjusted
+    ) {
+      beginOpponentRevealHold();
+    } else {
+      maybeAdvanceAdjustEarly();
+    }
   }
 
   if (
@@ -203,9 +213,62 @@ function schedulePhaseTransitions(lastActionType, prevPhase) {
 function maybeAdvanceAdjustEarly() {
   if (!isMatchActive(state) || state.phase !== PHASE.ADJUST) return;
   if (!state.playerAdjusted || !state.cpuAdjusted) return;
+  // 선공 연출 중이면 홀드 타이머가 RESOLVE를 담당
+  if (state.opponentAdjustBeat) return;
 
   clearAllTimers();
   dispatch({ type: 'ADVANCE_TO_RESOLVE' });
+}
+
+/**
+ * 선공·적 후공: CPU 확정 후 고민 → 버튼 안내 → RESOLVE
+ * 각 비트는 ai.adjustRevealHoldMs
+ */
+function beginOpponentRevealHold() {
+  if (!isMatchActive(state) || state.phase !== PHASE.ADJUST) return;
+  if (state.opponentAdjustBeat) return;
+
+  const holdMs = getBalance().ai.adjustRevealHoldMs;
+  const buttonPanel = document.getElementById('button-panel');
+  const timerEl = buttonPanel ? getAdjustTimerElement(buttonPanel) : null;
+
+  dispatch({ type: 'SET_OPPONENT_ADJUST_BEAT', beat: 'thinking' });
+  if (timerEl) {
+    showOpponentTurnWait(timerEl, '버튼을 고민합니다');
+  }
+
+  trackTimer(
+    setTimeout(() => {
+      if (
+        !isMatchActive(state) ||
+        state.phase !== PHASE.ADJUST ||
+        state.opponentAdjustBeat !== 'thinking'
+      ) {
+        return;
+      }
+
+      dispatch({ type: 'SET_OPPONENT_ADJUST_BEAT', beat: 'revealed' });
+      if (timerEl) {
+        showOpponentTurnWait(timerEl, '버튼을 선택합니다');
+      }
+
+      trackTimer(
+        setTimeout(() => {
+          if (
+            !isMatchActive(state) ||
+            state.phase !== PHASE.ADJUST ||
+            !state.playerAdjusted ||
+            !state.cpuAdjusted
+          ) {
+            return;
+          }
+
+          clearAllTimers();
+          dispatch({ type: 'ADVANCE_TO_RESOLVE' });
+        }, holdMs),
+      );
+    }, holdMs),
+  );
 }
 
 function beginSelectPhase() {

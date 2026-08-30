@@ -16,6 +16,7 @@
     "adjustDelayMinMs": 1000,
     "adjustDelayMaxMs": 4000,
     "bluffDelayMinMs": 300,
-    "bluffDelayMaxMs": 1100
+    "bluffDelayMaxMs": 1100,
+    "adjustRevealHoldMs": 1000
   }
 }

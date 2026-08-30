@@ -36,6 +36,8 @@ export function createInitialState() {
     cpuBluffedThisTurn: false,
     /** @type {null | 'kept' | 'changed' | 'bluffed'} 상대 ADJUST 버튼 (진실값; UI는 본능/가면 여부로 위장) */
     opponentButtonHint: null,
+    /** @type {null | 'thinking' | 'revealed'} 선공·적 후공: CPU 확정 후 안내 연출 */
+    opponentAdjustBeat: null,
     /** @type {'player' | 'opponent'} ADJUST 선공. 매치 시작 동전 · 턴마다 교대 (MENU에서는 미사용) */
     initiative: 'player',
     /** 매치 시작 동전 의식 중 — SELECT 입력·타이머 차단 */
@@ -76,6 +78,8 @@ export function createMatchState(options = {}) {
     cpuBluffedThisTurn: false,
     /** @type {null | 'kept' | 'changed' | 'bluffed'} */
     opponentButtonHint: null,
+    /** @type {null | 'thinking' | 'revealed'} 선공·적 후공: CPU 확정 후 안내 연출 */
+    opponentAdjustBeat: null,
     /** @type {'player' | 'opponent'} ADJUST 선공. 뒷면 가면이면 후공 고정 · 아니면 50/50 · 이후 턴 교대 */
     initiative: forcesSecondInitiative(equippedMaskId)
       ? 'opponent'

@@ -48,6 +48,7 @@ ai.adjustDelayMinSec	1	AI가 수정 페이즈에서 행동하기 전 최소 대�
 ai.adjustDelayMaxSec	4	AI가 수정 페이즈에서 행동하기 전 최대 대기(초)
 ai.bluffDelayMinSec	0.3	AI가 페이크하기 전 최소 대기(초)
 ai.bluffDelayMaxSec	1.1	AI가 페이크하기 전 최대 대기(초)
+ai.adjustRevealHoldSec	1	선공일 때 AI 확정 후 「고민」·「버튼 안내」각 비트 유지(초)
 ```
 
 필수 키가 빠지거나 숫자가 아니면 시트 로드가 실패하고 로컬 JSON(또는 defaults)을 쓴다.
