@@ -39,7 +39,12 @@ function bindPress(btn, handler) {
 
 /**
  * @param {HTMLElement} container
- * @param {{ onSelectMove: MoveHandler, onConfirm: ActionHandler, onBluff: ActionHandler }} handlers
+ * @param {{
+ *   onSelectMove: MoveHandler,
+ *   onConfirm: ActionHandler,
+ *   onBluff: ActionHandler,
+ *   onCoinToss: ActionHandler,
+ * }} handlers
  */
 export function initButtonPanel(container, handlers) {
   container.innerHTML = '';
@@ -78,6 +83,19 @@ export function initButtonPanel(container, handlers) {
   bindPress(bluffBtn, () => handlers.onBluff());
   adjustRow.appendChild(bluffBtn);
 
+  const coinRow = document.createElement('div');
+  coinRow.id = 'coin-actions';
+  coinRow.className = 'coin-actions';
+  coinRow.hidden = true;
+
+  const coinBtn = document.createElement('button');
+  coinBtn.type = 'button';
+  coinBtn.id = 'btn-coin-toss';
+  coinBtn.className = 'metal-btn coin-btn';
+  coinBtn.textContent = '동전 던지기';
+  bindPress(coinBtn, () => handlers.onCoinToss());
+  coinRow.appendChild(coinBtn);
+
   const moveRow = document.createElement('div');
   moveRow.id = 'move-buttons';
   moveRow.className = 'move-buttons';
@@ -94,6 +112,7 @@ export function initButtonPanel(container, handlers) {
 
   container.appendChild(adjustTimer);
   container.appendChild(adjustRow);
+  container.appendChild(coinRow);
   container.appendChild(moveRow);
 }
 
@@ -112,6 +131,8 @@ export function getAdjustTimerElement(container) {
  * @param {false | 'kept' | 'changed' | 'bluffed'} [playerAdjusted]
  * @param {boolean} [waitingForOpponent]
  * @param {boolean} [coinPending]
+ * @param {boolean} [coinAwaitingInput]
+ * @param {string} [coinButtonLabel]
  */
 export function setButtonPanelEnabled(
   container,
@@ -120,9 +141,14 @@ export function setButtonPanelEnabled(
   playerAdjusted = false,
   waitingForOpponent = false,
   coinPending = false,
+  coinAwaitingInput = false,
+  coinButtonLabel = '동전 던지기',
 ) {
   const adjustTimer = container.querySelector('#adjust-timer');
   const adjustRow = container.querySelector('#adjust-actions');
+  const coinRow = container.querySelector('#coin-actions');
+  const coinBtn = container.querySelector('#btn-coin-toss');
+  const moveRow = container.querySelector('#move-buttons');
   const moveButtons = container.querySelectorAll('.move-btn');
   const confirmBtn = container.querySelector('#btn-confirm');
   const bluffBtn = container.querySelector('#btn-bluff');
@@ -132,6 +158,7 @@ export function setButtonPanelEnabled(
   const forceDisabled = phase === '__disabled__';
   const committed = Boolean(playerAdjusted);
   const current = player.finalChoice ?? player.choice;
+  const showCoin = !forceDisabled && coinPending && coinAwaitingInput;
   const selectLocked = coinPending;
 
   if (adjustTimer && (forceDisabled || selectLocked || (!inSelect && !inAdjust))) {
@@ -142,12 +169,24 @@ export function setButtonPanelEnabled(
     adjustRow.hidden = !inAdjust || forceDisabled;
   }
 
+  if (coinRow) {
+    coinRow.hidden = !showCoin;
+  }
+  if (coinBtn instanceof HTMLButtonElement) {
+    coinBtn.textContent = coinButtonLabel;
+    coinBtn.disabled = !showCoin;
+  }
+
+  if (moveRow) {
+    moveRow.hidden = forceDisabled || coinPending;
+  }
+
   for (const btn of moveButtons) {
     const showCommit =
       inAdjust && !forceDisabled && committed && btn.dataset.move === current;
     btn.classList.toggle('is-committed', showCommit);
 
-    if (forceDisabled || selectLocked) {
+    if (forceDisabled || selectLocked || showCoin) {
       btn.disabled = true;
     } else if (inSelect) {
       btn.disabled = !canSelectMove(phase, coinPending);

@@ -85,9 +85,28 @@
   display: none;
 }
 
+#button-panel .coin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+#button-panel .coin-actions[hidden] {
+  display: none;
+}
+
+#button-panel .coin-btn {
+  flex: 1;
+  min-width: 5.5rem;
+}
+
 #button-panel .move-buttons {
   display: flex;
   flex-wrap: wrap;
+}
+
+#button-panel .move-buttons[hidden] {
+  display: none;
 }
 
 #overlay {

@@ -14,7 +14,13 @@ import {
   ITEM,
 } from './items.js';
 import { appendReplayEvent, buildMatchSummary } from './replay.js';
-import { applyMaskToCombatant, isMaskInstinctActive, getMaskInstinctLogMessage } from './masks.js';
+import {
+  applyMaskToCombatant,
+  isMaskInstinctActive,
+  getMaskInstinctLogMessage,
+  forcesSecondInitiative,
+  getMaskLabel,
+} from './masks.js';
 import { createNextMatchState } from '../scenes/cell.js';
 
 /** @typedef {import('../core/constants.js').Move} Move */
@@ -107,6 +113,7 @@ function advanceToNextTurn(state, player, opponent) {
       turn: nextTurn,
       initiative: nextInitiative,
       coinPending: false,
+      coinAwaitingInput: false,
       coinRevealed: false,
       partialResult: null,
       lastResolve: null,
@@ -180,7 +187,12 @@ function applyOpponentButtonHint(state, opponent, cpuBluffedThisTurn) {
  */
 function initMatchFromOptions(baseState) {
   const orderLabel = baseState.initiative === 'player' ? '선공' : '후공';
-  let state = appendLog(baseState, `[매치] 첫 수정: ${orderLabel}`);
+  const maskForced =
+    orderLabel === '후공' && forcesSecondInitiative(baseState.equippedMaskId);
+  const orderLog = maskForced
+    ? `[매치] 첫 수정: 후공 · ${getMaskLabel(baseState.equippedMaskId)}`
+    : `[매치] 첫 수정: ${orderLabel}`;
+  let state = appendLog(baseState, orderLog);
   state = appendLog(state, '[턴 1] SELECT');
   state = appendReplay(state, {
     kind: 'select',
@@ -217,6 +229,13 @@ export function reducePhase(state, action) {
       return initMatchFromOptions(createNextMatchState(action.save));
     }
 
+    case 'START_COIN_TOSS': {
+      if (!isActiveMatch(state) || !state.coinPending || !state.coinAwaitingInput) {
+        return state;
+      }
+      return { ...state, coinAwaitingInput: false };
+    }
+
     case 'REVEAL_COIN': {
       if (!isActiveMatch(state) || !state.coinPending) return state;
       return { ...state, coinRevealed: true };
@@ -224,7 +243,12 @@ export function reducePhase(state, action) {
 
     case 'FINISH_COIN': {
       if (!isActiveMatch(state) || !state.coinPending) return state;
-      return { ...state, coinPending: false, coinRevealed: false };
+      return {
+        ...state,
+        coinPending: false,
+        coinAwaitingInput: false,
+        coinRevealed: false,
+      };
     }
 
     case 'RETURN_TO_MENU':

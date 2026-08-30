@@ -1,6 +1,7 @@
 import { PHASE, SCENE } from '../core/constants.js';
 import { getBalance } from '../core/balance.js';
 import { createReplayState } from './replay.js';
+import { forcesSecondInitiative } from './masks.js';
 
 /**
  * @returns {object}
@@ -39,6 +40,8 @@ export function createInitialState() {
     initiative: 'player',
     /** 매치 시작 동전 의식 중 — SELECT 입력·타이머 차단 */
     coinPending: false,
+    /** 의식 중 · 플레이어 입력으로 던지기 대기 */
+    coinAwaitingInput: false,
     /** 의식 중 결과 문구 노출 여부 */
     coinRevealed: false,
     adjustTimerMs: getBalance().timers.adjustMs,
@@ -59,6 +62,7 @@ export function createInitialState() {
  * @returns {object}
  */
 export function createMatchState(options = {}) {
+  const equippedMaskId = options.equippedMaskId ?? null;
   return {
     scene: SCENE.MATCH,
     phase: PHASE.SELECT,
@@ -72,10 +76,16 @@ export function createMatchState(options = {}) {
     cpuBluffedThisTurn: false,
     /** @type {null | 'kept' | 'changed' | 'bluffed'} */
     opponentButtonHint: null,
-    /** @type {'player' | 'opponent'} ADJUST 선공. 0.1.36: 매치 시작 동전 50/50 · 이후 턴마다 교대 */
-    initiative: Math.random() < 0.5 ? 'player' : 'opponent',
+    /** @type {'player' | 'opponent'} ADJUST 선공. 뒷면 가면이면 후공 고정 · 아니면 50/50 · 이후 턴 교대 */
+    initiative: forcesSecondInitiative(equippedMaskId)
+      ? 'opponent'
+      : Math.random() < 0.5
+        ? 'player'
+        : 'opponent',
     /** 매치 시작만 true — 동전 의식 후 FINISH_COIN */
     coinPending: true,
+    /** true면 입력 대기 · START_COIN_TOSS 후 false */
+    coinAwaitingInput: true,
     coinRevealed: false,
     adjustTimerMs: getBalance().timers.adjustMs,
     tieItems: [],
@@ -84,7 +94,7 @@ export function createMatchState(options = {}) {
     matchLog: [],
     replay: createReplayState(),
     opponentMaskId: options.opponentMaskId ?? null,
-    equippedMaskId: options.equippedMaskId ?? null,
+    equippedMaskId,
     pendingCell: null,
     winner: null,
   };

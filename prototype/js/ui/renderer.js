@@ -1,7 +1,12 @@
 import { PHASE, SCENE } from '../core/constants.js';
 import { getBalance } from '../core/balance.js';
 import { ITEM, getInstinctDisplayHtml, getPublicOpponentButtonText } from '../game/items.js';
-import { isMaskInstinctActive, getMaskInstinctDisplayHtml } from '../game/masks.js';
+import {
+  isMaskInstinctActive,
+  getMaskInstinctDisplayHtml,
+  forcesSecondInitiative,
+  getMaskLabel,
+} from '../game/masks.js';
 import { isWaitingForOpponentAdjust } from '../game/phases.js';
 import { renderCeilingScreen } from './ceiling-screen.js';
 import { renderHud } from './hud.js';
@@ -132,6 +137,10 @@ export function render(state, save) {
   if (buttonPanel && buttonPanel.dataset.initialized === 'true') {
     const playable = isMatchActive(state) && state.phase !== PHASE.TIE_LOOT;
     if (playable) {
+      const coinAwaiting = Boolean(state.coinPending && state.coinAwaitingInput);
+      const coinLabel = forcesSecondInitiative(state.equippedMaskId)
+        ? '후공 확인'
+        : '동전 던지기';
       setButtonPanelEnabled(
         buttonPanel,
         state.phase,
@@ -139,6 +148,8 @@ export function render(state, save) {
         state.playerAdjusted,
         isWaitingForOpponentAdjust(state),
         Boolean(state.coinPending),
+        coinAwaiting,
+        coinLabel,
       );
     } else {
       setButtonPanelEnabled(buttonPanel, '__disabled__', state.player);
@@ -306,7 +317,21 @@ function renderPlayerDisplay(state) {
   if (state.phase === PHASE.SELECT && state.coinPending) {
     if (state.coinRevealed) {
       const order = state.initiative === 'player' ? '선공' : '후공';
+      if (
+        order === '후공' &&
+        forcesSecondInitiative(state.equippedMaskId)
+      ) {
+        const mask = getMaskLabel(state.equippedMaskId);
+        return { text: `첫 수정: 후공 (${mask})` };
+      }
       return { text: `첫 수정: ${order}` };
+    }
+    if (state.coinAwaitingInput) {
+      if (forcesSecondInitiative(state.equippedMaskId)) {
+        const mask = getMaskLabel(state.equippedMaskId);
+        return { text: `${mask} 효과 · 아래 버튼으로 확인` };
+      }
+      return { text: '아래 버튼으로 동전 던지기' };
     }
     return { text: '수정 선공 결정…' };
   }
