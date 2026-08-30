@@ -2,6 +2,7 @@ import { PHASE, SCENE } from '../core/constants.js';
 import { getBalance } from '../core/balance.js';
 import { ITEM, getInstinctDisplayHtml, getPublicOpponentButtonText } from '../game/items.js';
 import { isMaskInstinctActive, getMaskInstinctDisplayHtml } from '../game/masks.js';
+import { isWaitingForOpponentAdjust } from '../game/phases.js';
 import { renderCeilingScreen } from './ceiling-screen.js';
 import { renderHud } from './hud.js';
 import { setButtonPanelEnabled, MOVE_LABELS } from './button-panel.js';
@@ -126,6 +127,7 @@ export function render(state, save) {
         state.phase,
         state.player,
         state.playerAdjusted,
+        isWaitingForOpponentAdjust(state),
       );
     } else {
       setButtonPanelEnabled(buttonPanel, '__disabled__', state.player);
@@ -176,8 +178,9 @@ function getOutcomeDisplayClass(state) {
 function renderPlayerDisplay(state) {
   if (
     state.player.activeItem === ITEM.RULE_BREAK &&
-    (state.phase === PHASE.REVEAL || state.phase === PHASE.ADJUST) &&
-    state.opponent.choice
+    state.opponent.choice &&
+    (state.phase === PHASE.REVEAL ||
+      (state.phase === PHASE.ADJUST && !isWaitingForOpponentAdjust(state)))
   ) {
     return {
       text: `[규칙 파괴] 상대 초기 패: ${MOVE_LABELS[state.opponent.choice]}`,
@@ -201,6 +204,30 @@ function renderPlayerDisplay(state) {
   }
 
   if (state.phase === PHASE.ADJUST) {
+    if (isWaitingForOpponentAdjust(state)) {
+      const lines = ['상대 턴'];
+      if (state.player.activeItem === ITEM.INSTINCT) {
+        lines.push(
+          '<span class="instinct-reading instinct-reading--pending">[본능] 감지 중…</span>',
+        );
+      } else if (isMaskInstinctActive(state)) {
+        lines.push(
+          '<span class="instinct-reading instinct-reading--pending">[가면] 감지 중…</span>',
+        );
+      }
+      if (
+        state.player.activeItem === ITEM.RULE_BREAK &&
+        state.opponent.choice
+      ) {
+        lines.push(
+          `[규칙 파괴] 상대 초기 패: ${MOVE_LABELS[state.opponent.choice]}`,
+        );
+      }
+      return lines.length === 1
+        ? { text: lines[0] }
+        : { html: lines.join('<br>') };
+    }
+
     const initial = state.player.choice;
     const current = state.player.finalChoice ?? initial;
     let statusLine = '';

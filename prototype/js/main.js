@@ -22,7 +22,7 @@ import { initButtonPanel, getAdjustTimerElement } from './ui/button-panel.js';
 import { initTieLootPanel } from './ui/tie-loot-panel.js';
 import { initOverlay, setNewGameConfirmVisible } from './ui/overlay.js?v=0.1.30';
 import { render, setEquipMaskHandler } from './ui/renderer.js';
-import { startAdjustCountdown, stopCountdown } from './ui/countdown.js';
+import { startAdjustCountdown, stopCountdown, showOpponentTurnWait } from './ui/countdown.js';
 import { preloadAudio, playBluffClick, playMetalClick } from './ui/audio.js';
 import { flashPovBluff } from './ui/pov-viewport.js';
 import { resetCeilingScreen } from './ui/ceiling-screen.js';
@@ -149,7 +149,7 @@ function schedulePhaseTransitions(lastActionType, prevPhase) {
   }
 
   if (state.phase === PHASE.ADJUST && lastActionType === 'ENTER_ADJUST') {
-    beginAdjustPhase();
+    beginOpponentAdjustTurn();
   }
 
   if (
@@ -161,6 +161,16 @@ function schedulePhaseTransitions(lastActionType, prevPhase) {
       lastActionType === 'CPU_BLUFF')
   ) {
     maybeAdvanceAdjustEarly();
+  }
+
+  if (
+    state.phase === PHASE.ADJUST &&
+    (lastActionType === 'CPU_ADJUST' || lastActionType === 'CPU_BLUFF') &&
+    state.initiative === 'opponent' &&
+    state.cpuAdjusted &&
+    !state.playerAdjusted
+  ) {
+    beginPlayerAdjustTurn();
   }
 
   if (state.phase === PHASE.RESOLVE && lastActionType === 'ADVANCE_TO_RESOLVE') {
@@ -222,26 +232,13 @@ function onSelectTimeout() {
   dispatch({ type: 'COMMIT_SELECT' });
 }
 
-function beginAdjustPhase() {
-  const duration = state.adjustTimerMs ?? getBalance().timers.adjustMs;
+function beginOpponentAdjustTurn() {
   const buttonPanel = document.getElementById('button-panel');
   const timerEl = buttonPanel ? getAdjustTimerElement(buttonPanel) : null;
-
   if (timerEl) {
-    startAdjustCountdown(timerEl, duration, () => {
-      stopCountdown();
-      if (isMatchActive(state) && state.phase === PHASE.ADJUST) {
-        dispatch({ type: 'ADVANCE_TO_RESOLVE' });
-      }
-    });
+    showOpponentTurnWait(timerEl);
   } else {
-    trackTimer(
-      setTimeout(() => {
-        if (isMatchActive(state) && state.phase === PHASE.ADJUST) {
-          dispatch({ type: 'ADVANCE_TO_RESOLVE' });
-        }
-      }, duration),
-    );
+    stopCountdown();
   }
 
   // 최종 행동(유지|바꾸기|페이크)을 먼저 정한 뒤 한 번만 커밋 → 안내 덮어쓰기 방지
@@ -269,6 +266,30 @@ function beginAdjustPhase() {
       }
     }, cpuDelay),
   );
+}
+
+/** 후공: 상대 확정 후 플레이어 ADJUST 타이머 시작 */
+function beginPlayerAdjustTurn() {
+  const duration = state.adjustTimerMs ?? getBalance().timers.adjustMs;
+  const buttonPanel = document.getElementById('button-panel');
+  const timerEl = buttonPanel ? getAdjustTimerElement(buttonPanel) : null;
+
+  if (timerEl) {
+    startAdjustCountdown(timerEl, duration, () => {
+      stopCountdown();
+      if (isMatchActive(state) && state.phase === PHASE.ADJUST) {
+        dispatch({ type: 'ADVANCE_TO_RESOLVE' });
+      }
+    });
+  } else {
+    trackTimer(
+      setTimeout(() => {
+        if (isMatchActive(state) && state.phase === PHASE.ADJUST) {
+          dispatch({ type: 'ADVANCE_TO_RESOLVE' });
+        }
+      }, duration),
+    );
+  }
 }
 
 /**

@@ -110,8 +110,15 @@ export function getAdjustTimerElement(container) {
  * @param {string} phase
  * @param {object} player
  * @param {false | 'kept' | 'changed' | 'bluffed'} [playerAdjusted]
+ * @param {boolean} [waitingForOpponent]
  */
-export function setButtonPanelEnabled(container, phase, player, playerAdjusted = false) {
+export function setButtonPanelEnabled(
+  container,
+  phase,
+  player,
+  playerAdjusted = false,
+  waitingForOpponent = false,
+) {
   const adjustTimer = container.querySelector('#adjust-timer');
   const adjustRow = container.querySelector('#adjust-actions');
   const moveButtons = container.querySelectorAll('.move-btn');
@@ -142,10 +149,10 @@ export function setButtonPanelEnabled(container, phase, player, playerAdjusted =
     } else if (inSelect) {
       btn.disabled = !canSelectMove(phase);
     } else if (inAdjust) {
-      if (committed) {
+      if (committed || waitingForOpponent) {
         btn.disabled = true;
       } else {
-        const canChange = canAdjustChange(phase, player, committed);
+        const canChange = canAdjustChange(phase, player, committed, waitingForOpponent);
         btn.disabled = !canChange || btn.dataset.move === current;
       }
     } else {
@@ -154,7 +161,8 @@ export function setButtonPanelEnabled(container, phase, player, playerAdjusted =
   }
 
   if (confirmBtn) {
-    confirmBtn.disabled = forceDisabled || !canAdjustConfirm(phase, committed);
+    confirmBtn.disabled =
+      forceDisabled || !canAdjustConfirm(phase, committed, waitingForOpponent);
     confirmBtn.classList.toggle(
       'is-committed',
       inAdjust && !forceDisabled && playerAdjusted === 'kept',
@@ -162,7 +170,8 @@ export function setButtonPanelEnabled(container, phase, player, playerAdjusted =
   }
 
   if (bluffBtn) {
-    bluffBtn.disabled = forceDisabled || !canAdjustBluff(phase, player, committed);
+    bluffBtn.disabled =
+      forceDisabled || !canAdjustBluff(phase, player, committed, waitingForOpponent);
     bluffBtn.classList.toggle(
       'is-committed',
       inAdjust && !forceDisabled && playerAdjusted === 'bluffed',

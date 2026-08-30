@@ -93,3 +93,35 @@ export function stopCountdown() {
     activeRoot = null;
   }
 }
+
+/**
+ * 후공 ADJUST — 상대 턴 대기 (틱 없음)
+ * @param {HTMLElement} root
+ * @param {string} [labelText]
+ */
+export function showOpponentTurnWait(root, labelText = '상대 선택 중') {
+  stopCountdown();
+
+  activeRoot = root;
+  root.hidden = false;
+  root.classList.remove('adjust-timer--urgent');
+
+  const fill = root.querySelector('.adjust-timer__fill');
+  if (fill) {
+    fill.style.width = '100%';
+  }
+
+  const label = root.querySelector('.adjust-timer__label');
+  if (label) {
+    label.textContent = labelText;
+  }
+
+  const track = root.querySelector('.adjust-timer__track');
+  if (track) {
+    track.setAttribute('role', 'status');
+    track.setAttribute('aria-label', '상대 턴');
+    track.removeAttribute('aria-valuenow');
+    track.removeAttribute('aria-valuemax');
+    track.removeAttribute('aria-valuemin');
+  }
+}

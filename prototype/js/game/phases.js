@@ -369,6 +369,7 @@ export function reducePhase(state, action) {
     case 'ADJUST_CHANGE': {
       if (!isActiveMatch(state) || state.phase !== PHASE.ADJUST) return state;
       if (state.playerAdjusted) return state;
+      if (isWaitingForOpponentAdjust(state)) return state;
       if (!action.move) return state;
       if (!canChange(state.player)) return state;
 
@@ -394,6 +395,7 @@ export function reducePhase(state, action) {
     case 'ADJUST_CONFIRM': {
       if (!isActiveMatch(state) || state.phase !== PHASE.ADJUST) return state;
       if (state.playerAdjusted) return state;
+      if (isWaitingForOpponentAdjust(state)) return state;
 
       const current = state.player.finalChoice ?? state.player.choice;
       return appendLogAndReplay(
@@ -406,6 +408,7 @@ export function reducePhase(state, action) {
     case 'ADJUST_BLUFF': {
       if (!isActiveMatch(state) || state.phase !== PHASE.ADJUST) return state;
       if (state.playerAdjusted) return state;
+      if (isWaitingForOpponentAdjust(state)) return state;
       if (!canBluff(state.player)) return state;
 
       const player = spendBluff(state.player);
@@ -654,6 +657,15 @@ export function reducePhase(state, action) {
 }
 
 /**
+ * 후공: 상대 ADJUST 확정 전까지 플레이어 입력 대기
+ * @param {object} state
+ * @returns {boolean}
+ */
+export function isWaitingForOpponentAdjust(state) {
+  return state.initiative === 'opponent' && !state.cpuAdjusted;
+}
+
+/**
  * @param {string} phase
  * @returns {boolean}
  */
@@ -664,25 +676,41 @@ export function canSelectMove(phase) {
 /**
  * @param {string} phase
  * @param {object} player
+ * @param {boolean} [committed]
+ * @param {boolean} [waitingForOpponent]
  * @returns {boolean}
  */
-export function canAdjustChange(phase, player, committed = false) {
-  return phase === PHASE.ADJUST && !committed && canChange(player);
+export function canAdjustChange(phase, player, committed = false, waitingForOpponent = false) {
+  return (
+    phase === PHASE.ADJUST &&
+    !committed &&
+    !waitingForOpponent &&
+    canChange(player)
+  );
 }
 
 /**
  * @param {string} phase
  * @param {object} player
+ * @param {boolean} [committed]
+ * @param {boolean} [waitingForOpponent]
  * @returns {boolean}
  */
-export function canAdjustBluff(phase, player, committed = false) {
-  return phase === PHASE.ADJUST && !committed && canBluff(player);
+export function canAdjustBluff(phase, player, committed = false, waitingForOpponent = false) {
+  return (
+    phase === PHASE.ADJUST &&
+    !committed &&
+    !waitingForOpponent &&
+    canBluff(player)
+  );
 }
 
 /**
  * @param {string} phase
+ * @param {boolean} [committed]
+ * @param {boolean} [waitingForOpponent]
  * @returns {boolean}
  */
-export function canAdjustConfirm(phase, committed = false) {
-  return phase === PHASE.ADJUST && !committed;
+export function canAdjustConfirm(phase, committed = false, waitingForOpponent = false) {
+  return phase === PHASE.ADJUST && !committed && !waitingForOpponent;
 }
