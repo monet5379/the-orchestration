@@ -97,11 +97,15 @@ function isActiveMatch(state) {
  */
 function advanceToNextTurn(state, player, opponent) {
   const nextTurn = state.turn + 1;
+  const nextInitiative =
+    state.initiative === 'player' ? 'opponent' : 'player';
+  const orderLabel = nextInitiative === 'player' ? '선공' : '후공';
   return appendLogAndReplay(
     {
       ...state,
       phase: PHASE.SELECT,
       turn: nextTurn,
+      initiative: nextInitiative,
       partialResult: null,
       lastResolve: null,
       cpuAdjusted: false,
@@ -113,7 +117,7 @@ function advanceToNextTurn(state, player, opponent) {
       player: resetCombatantChoice(player),
       opponent: resetCombatantChoice(opponent),
     },
-    `[턴 ${nextTurn}] SELECT`,
+    `[턴 ${nextTurn}] SELECT · 이번 수정: ${orderLabel}`,
     { kind: 'select', actor: 'system', payload: { message: 'next turn' } },
   );
 }
@@ -173,7 +177,9 @@ function applyOpponentButtonHint(state, opponent, cpuBluffedThisTurn) {
  * @returns {object}
  */
 function initMatchFromOptions(baseState) {
-  let state = appendLog(baseState, '[턴 1] SELECT');
+  const orderLabel = baseState.initiative === 'player' ? '선공' : '후공';
+  let state = appendLog(baseState, `[매치] 첫 수정: ${orderLabel}`);
+  state = appendLog(state, '[턴 1] SELECT');
   state = appendReplay(state, {
     kind: 'select',
     actor: 'system',

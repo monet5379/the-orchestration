@@ -171,7 +171,7 @@ SELECT ──→ REVEAL ──→ ADJUST ──→ RESOLVE
 |---|---|---|---|
 | `SELECT` | 1. 동시 패 선택 | R/P/S (0.5s debounce 후 확정) | 초기 선택 |
 | `REVEAL` | 2. 상황 정보 노출 | 없음 | — |
-| `ADJUST` | 3. 수정 & 블러핑 | **선공(0.1.35 고정):** 「내 턴」+ **15s**(팽창 +2s) → 확정 후 CPU 1회·안내 · 한 번 확정 | 후커밋 1회 · 양측 완료 시 즉시 종료 |
+| `ADJUST` | 3. 수정 & 블러핑 | **선공/후공(0.1.36):** 동전→첫 턴 · 이후 교대 · 「이번 수정」+ **15s**(팽창 +2s) · 한 번 확정 | 선/후 경로에 따라 선·후 커밋 |
 | `RESOLVE` | 4. 결과 공개 및 페널티 | 없음 | — |
 | `TIE_LOOT` | 무승부 아이템 | 선택 후 [획득] · 나 1 + CPU 1 | `pickTieItem` |
 
@@ -200,7 +200,7 @@ SELECT ──→ REVEAL ──→ ADJUST ──→ RESOLVE
 
   partialResult: 'winner_exists',
   lastResolve: { outcome, playerMove, opponentMove },
-  initiative: 'player',     // 'player' | 'opponent' — ADJUST 선공. 0.1.35: 항상 player(선공). 후공 분기 코드 유지
+  initiative: 'player',     // 'player' | 'opponent' — 이번 턴 ADJUST 선공. 0.1.36: 매치 시작 동전 · 턴마다 교대
   cpuAdjusted: false,       // 조기 RESOLVE · 후공일 때 !cpuAdjusted → 상대 턴
   playerAdjusted: false,  // false | 'kept' | 'changed' | 'bluffed'
   cpuBluffedThisTurn: false,
@@ -230,7 +230,7 @@ SELECT ──→ REVEAL ──→ ADJUST ──→ RESOLVE
 
 - `REVEAL`: `partialResult`만 UI 노출.
 - `opponent.choice` / `finalChoice`는 기본 비노출 (`rule_break` 예외).
-- ADJUST **순서** (v0.1.35): SELECT는 동시. 기본 선공 — 내가 유지/바꾸기/페이크를 먼저 확정 → CPU → 안내. 후공 분기(`initiative === 'opponent'`)는 코드에 유지.
+- ADJUST **순서** (v0.1.36): SELECT는 동시. 매치 시작 동전으로 첫 선공 → 이후 턴마다 교대. 선공/후공 경로는 `initiative`로 분기.
 - ADJUST 안내: 기본은 유지/바꾸기만(페이크→바꾸기 위장). 본능·×가면은 페이크까지 정확.
 - replay의 CPU 이벤트는 `hidden: true` → VHS에 `(hidden)` 표시.
 
@@ -285,8 +285,10 @@ SELECT ──→ REVEAL ──→ ADJUST ──→ RESOLVE
 `ENTER_ADJUST` → `beginOpponentAdjustTurn`(「상대 턴」·패널 잠금·틱 없음) → `CPU_*` → 안내 → `beginPlayerAdjustTurn`(내 `adjustTimerMs`).  
 대기 중 `isWaitingForOpponentAdjust`로 플레이어 `ADJUST_*` 거부.
 
-**ADJUST 선공 (v0.1.35):** `initiative === 'player'`(기본 고정).  
+**ADJUST 선공 (v0.1.35+):** `initiative === 'player'`일 때.  
 `ENTER_ADJUST` → `beginPlayerAdjustTurn`(「내 턴」·타이머 즉시) → 플레이어 `ADJUST_*` → `beginCpuAdjustAfterPlayer` → `CPU_*` → 안내 → 양측 완료 시 RESOLVE.
+
+**ADJUST 순서 (v0.1.36):** 매치 시작 `createMatchState`에서 `initiative` 50/50. `advanceToNextTurn`에서 토글. UI 「이번 수정: 선공/후공」.
 
 | 액션 | 발생 | 결과 |
 |---|---|---|
@@ -377,6 +379,6 @@ ES Module·SFX fetch를 위해 **정적 서버 사용을 권장** (`file://` 비
 
 ---
 
-*문서 버전: 0.1.35 · 2026-08-30 · ADJUST 선공(initiative) · SELECT 동시 · loadBalance · commit-once · launcher*  
+*문서 버전: 0.1.36 · 2026-08-30 · ADJUST 동전+턴 교대(initiative) · SELECT 동시 · loadBalance · commit-once · launcher*  
 *프로토타입 이력: [`../prototype/ARCHIVE.md`](../prototype/ARCHIVE.md)*
 

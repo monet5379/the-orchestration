@@ -20,6 +20,16 @@ const OUTCOME_LABEL = {
   draw: '무승부',
 };
 
+/**
+ * @param {object} state
+ * @returns {string}
+ */
+function getAdjustOrderLabel(state) {
+  return state.initiative === 'player'
+    ? '이번 수정: 선공'
+    : '이번 수정: 후공';
+}
+
 /** @type {(maskId: string) => void} */
 let onEquipMaskHandler = () => {};
 
@@ -204,8 +214,9 @@ function renderPlayerDisplay(state) {
   }
 
   if (state.phase === PHASE.ADJUST) {
+    const orderLine = getAdjustOrderLabel(state);
     if (isWaitingForOpponentAdjust(state)) {
-      const lines = ['상대 턴'];
+      const lines = [orderLine, '상대 턴'];
       if (state.player.activeItem === ITEM.INSTINCT) {
         lines.push(
           '<span class="instinct-reading instinct-reading--pending">[본능] 감지 중…</span>',
@@ -223,9 +234,7 @@ function renderPlayerDisplay(state) {
           `[규칙 파괴] 상대 초기 패: ${MOVE_LABELS[state.opponent.choice]}`,
         );
       }
-      return lines.length === 1
-        ? { text: lines[0] }
-        : { html: lines.join('<br>') };
+      return { html: lines.join('<br>') };
     }
 
     const initial = state.player.choice;
@@ -245,7 +254,7 @@ function renderPlayerDisplay(state) {
       const hint = state.opponentButtonHint
         ? getInstinctDisplayHtml(state.opponentButtonHint)
         : '<span class="instinct-reading instinct-reading--pending">[본능] 감지 중…</span>';
-      const parts = [];
+      const parts = [orderLine];
       if (showMyTurn) parts.push('내 턴');
       parts.push(hint);
       if (statusLine) parts.push(statusLine);
@@ -256,7 +265,7 @@ function renderPlayerDisplay(state) {
       const hint = state.opponentButtonHint
         ? getMaskInstinctDisplayHtml(state.opponentButtonHint)
         : '<span class="instinct-reading instinct-reading--pending">[가면] 감지 중…</span>';
-      const parts = [];
+      const parts = [orderLine];
       if (showMyTurn) parts.push('내 턴');
       parts.push(hint);
       if (statusLine) parts.push(statusLine);
@@ -268,23 +277,19 @@ function renderPlayerDisplay(state) {
       : '';
 
     if (showMyTurn) {
-      const lines = ['내 턴'];
+      const lines = [orderLine, '내 턴'];
       if (pressedNote) lines.push(pressedNote);
       if (statusLine) lines.push(statusLine);
-      return lines.length === 1
-        ? { text: lines[0] }
-        : { html: lines.join('<br>') };
+      return { html: lines.join('<br>') };
     }
 
-    if (pressedNote && statusLine) {
-      return { html: `${pressedNote}<br>${statusLine}` };
+    const lines = [orderLine];
+    if (pressedNote) lines.push(pressedNote);
+    if (statusLine) lines.push(statusLine);
+    if (lines.length === 1) {
+      return { text: orderLine };
     }
-    if (pressedNote) {
-      return { text: pressedNote };
-    }
-    if (statusLine) {
-      return { text: statusLine };
-    }
+    return { html: lines.join('<br>') };
   }
 
   if (state.player.choice) {
