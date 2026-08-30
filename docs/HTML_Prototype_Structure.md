@@ -171,7 +171,7 @@ SELECT ──→ REVEAL ──→ ADJUST ──→ RESOLVE
 |---|---|---|---|
 | `SELECT` | 1. 동시 패 선택 | R/P/S (0.5s debounce 후 확정) | 초기 선택 |
 | `REVEAL` | 2. 상황 정보 노출 | 없음 | — |
-| `ADJUST` | 3. 수정 & 블러핑 | **후공(1단계 고정):** 상대 턴 잠금 → CPU 1회 → 안내 후 내 **15s**(팽창 +2s) · 한 번 확정 | 선커밋 1회 · 양측 완료 시 즉시 종료 |
+| `ADJUST` | 3. 수정 & 블러핑 | **선공(0.1.35 고정):** 「내 턴」+ **15s**(팽창 +2s) → 확정 후 CPU 1회·안내 · 한 번 확정 | 후커밋 1회 · 양측 완료 시 즉시 종료 |
 | `RESOLVE` | 4. 결과 공개 및 페널티 | 없음 | — |
 | `TIE_LOOT` | 무승부 아이템 | 선택 후 [획득] · 나 1 + CPU 1 | `pickTieItem` |
 
@@ -200,8 +200,8 @@ SELECT ──→ REVEAL ──→ ADJUST ──→ RESOLVE
 
   partialResult: 'winner_exists',
   lastResolve: { outcome, playerMove, opponentMove },
-  initiative: 'opponent',   // 'player' | 'opponent' — ADJUST 선공. 1단계: 항상 opponent(플레이어 후공)
-  cpuAdjusted: false,       // 후공일 때 !cpuAdjusted → 상대 턴
+  initiative: 'player',     // 'player' | 'opponent' — ADJUST 선공. 0.1.35: 항상 player(선공). 후공 분기 코드 유지
+  cpuAdjusted: false,       // 조기 RESOLVE · 후공일 때 !cpuAdjusted → 상대 턴
   playerAdjusted: false,  // false | 'kept' | 'changed' | 'bluffed'
   cpuBluffedThisTurn: false,
   opponentButtonHint: null, // null | 'kept' | 'changed' | 'bluffed' (진실값; UI는 본능/가면 여부로 위장)
@@ -230,7 +230,7 @@ SELECT ──→ REVEAL ──→ ADJUST ──→ RESOLVE
 
 - `REVEAL`: `partialResult`만 UI 노출.
 - `opponent.choice` / `finalChoice`는 기본 비노출 (`rule_break` 예외).
-- ADJUST **순서** (v0.1.34): SELECT는 동시. 후공이면 상대가 유지/바꾸기/페이크를 먼저 확정 → 안내 공개 → 내 타이머.
+- ADJUST **순서** (v0.1.35): SELECT는 동시. 기본 선공 — 내가 유지/바꾸기/페이크를 먼저 확정 → CPU → 안내. 후공 분기(`initiative === 'opponent'`)는 코드에 유지.
 - ADJUST 안내: 기본은 유지/바꾸기만(페이크→바꾸기 위장). 본능·×가면은 페이크까지 정확.
 - replay의 CPU 이벤트는 `hidden: true` → VHS에 `(hidden)` 표시.
 
@@ -281,9 +281,12 @@ SELECT ──→ REVEAL ──→ ADJUST ──→ RESOLVE
 `playerAdjusted` + `cpuAdjusted`이면 `main.js`가 타이머를 끊고 즉시 `ADVANCE_TO_RESOLVE`.  
 `opponentButtonHint`로 상대 버튼 종류 표시. CPU는 `planCpuAdjustAction`으로 최종 행동 1회 커밋. 기본 UI는 페이크→바꾸기 위장.
 
-**ADJUST 후공 (v0.1.34):** `initiative === 'opponent'`(1단계 고정).  
+**ADJUST 후공 (v0.1.34):** `initiative === 'opponent'`일 때만.  
 `ENTER_ADJUST` → `beginOpponentAdjustTurn`(「상대 턴」·패널 잠금·틱 없음) → `CPU_*` → 안내 → `beginPlayerAdjustTurn`(내 `adjustTimerMs`).  
 대기 중 `isWaitingForOpponentAdjust`로 플레이어 `ADJUST_*` 거부.
+
+**ADJUST 선공 (v0.1.35):** `initiative === 'player'`(기본 고정).  
+`ENTER_ADJUST` → `beginPlayerAdjustTurn`(「내 턴」·타이머 즉시) → 플레이어 `ADJUST_*` → `beginCpuAdjustAfterPlayer` → `CPU_*` → 안내 → 양측 완료 시 RESOLVE.
 
 | 액션 | 발생 | 결과 |
 |---|---|---|
@@ -292,9 +295,9 @@ SELECT ──→ REVEAL ──→ ADJUST ──→ RESOLVE
 | `LEAVE_CELL` / `RETURN_TO_MENU` | [타이틀] | menu (`phase: MENU`) |
 | `FORCE_WIN` / `FORCE_LOSE` | 개발자 모드 치트 | 페널티 3/3 → cell / gameover |
 | `SELECT_MOVE` + `COMMIT_SELECT` | R/P/S + 0.5s | REVEAL |
-| `ENTER_ADJUST` | REVEAL 후 | ADJUST · 후공이면 상대 턴 부트 |
-| `CPU_*` | 상대 ADJUST 확정 | 안내 · 후공이면 플레이어 타이머 시작 |
-| `ADJUST_*` | 수정·페이크 (상대 확정 후 · 한 번만) | ADJUST · 양측 완료 시 즉시 RESOLVE |
+| `ENTER_ADJUST` | REVEAL 후 | ADJUST · 선공이면 내 턴 · 후공이면 상대 턴 부트 |
+| `CPU_*` | 상대 ADJUST 확정 | 안내 · 후공이면 플레이어 타이머 시작 · 선공이면 조기 RESOLVE 가능 |
+| `ADJUST_*` | 수정·페이크 (한 번만 · 후공이면 상대 확정 후) | ADJUST · 선공이면 CPU 스케줄 · 양측 완료 시 즉시 RESOLVE |
 | `ADVANCE_TO_RESOLVE` | ADJUST 종료 (타이머 또는 조기) | RESOLVE |
 | `COMPLETE_RESOLVE` | RESOLVE 후 | 다음 턴 / TIE_LOOT / cell / gameover |
 | `TIE_PICK` | 아이템 획득 | SELECT |
@@ -374,6 +377,6 @@ ES Module·SFX fetch를 위해 **정적 서버 사용을 권장** (`file://` 비
 
 ---
 
-*문서 버전: 0.1.34 · 2026-08-30 · ADJUST 후공(initiative) · SELECT 동시 · loadBalance · commit-once · launcher*  
+*문서 버전: 0.1.35 · 2026-08-30 · ADJUST 선공(initiative) · SELECT 동시 · loadBalance · commit-once · launcher*  
 *프로토타입 이력: [`../prototype/ARCHIVE.md`](../prototype/ARCHIVE.md)*
 

@@ -149,7 +149,23 @@ function schedulePhaseTransitions(lastActionType, prevPhase) {
   }
 
   if (state.phase === PHASE.ADJUST && lastActionType === 'ENTER_ADJUST') {
-    beginOpponentAdjustTurn();
+    if (state.initiative === 'opponent') {
+      beginOpponentAdjustTurn();
+    } else {
+      beginPlayerAdjustTurn();
+    }
+  }
+
+  if (
+    state.phase === PHASE.ADJUST &&
+    (lastActionType === 'ADJUST_CHANGE' ||
+      lastActionType === 'ADJUST_CONFIRM' ||
+      lastActionType === 'ADJUST_BLUFF') &&
+    state.initiative === 'player' &&
+    state.playerAdjusted &&
+    !state.cpuAdjusted
+  ) {
+    beginCpuAdjustAfterPlayer();
   }
 
   if (
@@ -232,15 +248,8 @@ function onSelectTimeout() {
   dispatch({ type: 'COMMIT_SELECT' });
 }
 
-function beginOpponentAdjustTurn() {
-  const buttonPanel = document.getElementById('button-panel');
-  const timerEl = buttonPanel ? getAdjustTimerElement(buttonPanel) : null;
-  if (timerEl) {
-    showOpponentTurnWait(timerEl);
-  } else {
-    stopCountdown();
-  }
-
+/** 후공 진입 · 선공 플레이어 확정 후 — CPU plan + delay 커밋 */
+function scheduleCpuAdjustCommit() {
   // 최종 행동(유지|바꾸기|페이크)을 먼저 정한 뒤 한 번만 커밋 → 안내 덮어쓰기 방지
   const plan = planCpuAdjustAction(state);
   const { ai } = getBalance();
@@ -268,7 +277,32 @@ function beginOpponentAdjustTurn() {
   );
 }
 
-/** 후공: 상대 확정 후 플레이어 ADJUST 타이머 시작 */
+function beginOpponentAdjustTurn() {
+  const buttonPanel = document.getElementById('button-panel');
+  const timerEl = buttonPanel ? getAdjustTimerElement(buttonPanel) : null;
+  if (timerEl) {
+    showOpponentTurnWait(timerEl);
+  } else {
+    stopCountdown();
+  }
+
+  scheduleCpuAdjustCommit();
+}
+
+/** 선공: 플레이어 확정 후 타이머를 끊고 CPU ADJUST */
+function beginCpuAdjustAfterPlayer() {
+  const buttonPanel = document.getElementById('button-panel');
+  const timerEl = buttonPanel ? getAdjustTimerElement(buttonPanel) : null;
+  if (timerEl) {
+    showOpponentTurnWait(timerEl);
+  } else {
+    stopCountdown();
+  }
+
+  scheduleCpuAdjustCommit();
+}
+
+/** 선공 진입 · 후공: 상대 확정 후 — 플레이어 ADJUST 타이머 시작 */
 function beginPlayerAdjustTurn() {
   const duration = state.adjustTimerMs ?? getBalance().timers.adjustMs;
   const buttonPanel = document.getElementById('button-panel');

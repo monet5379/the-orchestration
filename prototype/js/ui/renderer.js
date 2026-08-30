@@ -237,24 +237,44 @@ function renderPlayerDisplay(state) {
       statusLine = `현재: ${MOVE_LABELS[current]}`;
     }
 
+    const showMyTurn =
+      state.initiative === 'player' && !state.playerAdjusted;
+
     const maskActive = isMaskInstinctActive(state);
     if (state.player.activeItem === ITEM.INSTINCT) {
       const hint = state.opponentButtonHint
         ? getInstinctDisplayHtml(state.opponentButtonHint)
         : '<span class="instinct-reading instinct-reading--pending">[본능] 감지 중…</span>';
-      return { html: statusLine ? `${hint}<br>${statusLine}` : hint };
+      const parts = [];
+      if (showMyTurn) parts.push('내 턴');
+      parts.push(hint);
+      if (statusLine) parts.push(statusLine);
+      return { html: parts.join('<br>') };
     }
 
     if (maskActive) {
       const hint = state.opponentButtonHint
         ? getMaskInstinctDisplayHtml(state.opponentButtonHint)
         : '<span class="instinct-reading instinct-reading--pending">[가면] 감지 중…</span>';
-      return { html: statusLine ? `${hint}<br>${statusLine}` : hint };
+      const parts = [];
+      if (showMyTurn) parts.push('내 턴');
+      parts.push(hint);
+      if (statusLine) parts.push(statusLine);
+      return { html: parts.join('<br>') };
     }
 
     const pressedNote = state.opponentButtonHint
       ? getPublicOpponentButtonText(state.opponentButtonHint)
       : '';
+
+    if (showMyTurn) {
+      const lines = ['내 턴'];
+      if (pressedNote) lines.push(pressedNote);
+      if (statusLine) lines.push(statusLine);
+      return lines.length === 1
+        ? { text: lines[0] }
+        : { html: lines.join('<br>') };
+    }
 
     if (pressedNote && statusLine) {
       return { html: `${pressedNote}<br>${statusLine}` };

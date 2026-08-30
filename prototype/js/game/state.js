@@ -35,8 +35,8 @@ export function createInitialState() {
     cpuBluffedThisTurn: false,
     /** @type {null | 'kept' | 'changed' | 'bluffed'} 상대 ADJUST 버튼 (진실값; UI는 본능/가면 여부로 위장) */
     opponentButtonHint: null,
-    /** @type {'player' | 'opponent'} ADJUST 선공. 1단계: 항상 opponent(플레이어 후공) */
-    initiative: 'opponent',
+    /** @type {'player' | 'opponent'} ADJUST 선공. 0.1.35: 항상 player(선공). 후공 분기는 코드에 유지 */
+    initiative: 'player',
     adjustTimerMs: getBalance().timers.adjustMs,
     tieItems: [],
     tieItemsRemaining: [],
@@ -68,8 +68,8 @@ export function createMatchState(options = {}) {
     cpuBluffedThisTurn: false,
     /** @type {null | 'kept' | 'changed' | 'bluffed'} */
     opponentButtonHint: null,
-    /** @type {'player' | 'opponent'} ADJUST 선공. 1단계: 항상 opponent(플레이어 후공) */
-    initiative: 'opponent',
+    /** @type {'player' | 'opponent'} ADJUST 선공. 0.1.35: 항상 player(선공). 후공 분기는 코드에 유지 */
+    initiative: 'player',
     adjustTimerMs: getBalance().timers.adjustMs,
     tieItems: [],
     tieItemsRemaining: [],
