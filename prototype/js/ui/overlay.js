@@ -3,6 +3,17 @@ import { renderPenaltyPips } from '../game/penalties.js';
 import { formatSaveSummary, hasSaveProgress } from '../core/storage.js';
 
 /**
+ * @param {boolean} showConfirm
+ * main.js named import — 캐시로 옛 overlay.js가 남으면 "does not provide an export named setNewGameConfirmVisible"
+ */
+export function setNewGameConfirmVisible(showConfirm) {
+  const actions = document.getElementById('menu-actions');
+  const confirm = document.getElementById('menu-new-game-confirm');
+  if (actions) actions.hidden = showConfirm;
+  if (confirm) confirm.hidden = !showConfirm;
+}
+
+/**
  * @param {object | null | undefined} save
  */
 export function updateMenuButtons(save) {
@@ -53,6 +64,9 @@ export function renderOverlay(state, save) {
     if (inMenu && save) {
       updateMenuButtons(save);
     }
+    if (!inMenu) {
+      setNewGameConfirmVisible(false);
+    }
   }
 
   if (gameoverScreen) {
@@ -94,11 +108,19 @@ export function renderOverlay(state, save) {
 }
 
 /**
- * @param {{ onContinue: () => void, onNewGame: () => void, onRestart: () => void }} handlers
+ * @param {{
+ *   onContinue: () => void,
+ *   onNewGame: () => void,
+ *   onNewGameConfirm: () => void,
+ *   onNewGameCancel: () => void,
+ *   onRestart: () => void,
+ * }} handlers
  */
 export function initOverlay(handlers) {
   const continueBtn = document.getElementById('btn-continue');
   const newGameBtn = document.getElementById('btn-new-game');
+  const newGameYes = document.getElementById('btn-new-game-yes');
+  const newGameNo = document.getElementById('btn-new-game-no');
   const restartBtn = document.getElementById('btn-restart');
 
   if (continueBtn) {
@@ -113,6 +135,20 @@ export function initOverlay(handlers) {
     newGameBtn.addEventListener('click', (event) => {
       event.preventDefault();
       handlers.onNewGame();
+    });
+  }
+
+  if (newGameYes) {
+    newGameYes.addEventListener('click', (event) => {
+      event.preventDefault();
+      handlers.onNewGameConfirm();
+    });
+  }
+
+  if (newGameNo) {
+    newGameNo.addEventListener('click', (event) => {
+      event.preventDefault();
+      handlers.onNewGameCancel();
     });
   }
 

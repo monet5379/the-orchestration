@@ -17,7 +17,7 @@
   <div id="overlay">
     <section id="menu-screen" class="overlay-screen">
       <h1>The Orchestration</h1>
-      <p class="overlay-subtitle">죽음을 관리하는 자 — HTML Prototype v0.1.29 (Step 6)</p>
+      <p class="overlay-subtitle">죽음을 관리하는 자 — HTML Prototype v0.1.30 (Step 6)</p>
 
       <div class="rules-brief" aria-label="매치 규칙">
         <p class="rules-brief__title">[ 게임 규칙 ]</p>
@@ -28,9 +28,17 @@
 
       <p id="menu-save-summary" class="menu-save-summary" hidden></p>
 
-      <div class="menu-actions">
+      <div class="menu-actions" id="menu-actions">
         <button id="btn-continue" type="button" class="metal-btn" disabled>이어하기</button>
         <button id="btn-new-game" type="button" class="metal-btn">새 게임</button>
+      </div>
+
+      <div id="menu-new-game-confirm" class="menu-confirm" hidden>
+        <p class="menu-confirm__text">가면과 전적이 모두 삭제됩니다. 새 게임을 시작할까요?</p>
+        <div class="menu-confirm__actions">
+          <button id="btn-new-game-yes" type="button" class="metal-btn">삭제하고 시작</button>
+          <button id="btn-new-game-no" type="button" class="metal-btn">취소</button>
+        </div>
       </div>
     </section>
 
@@ -123,6 +131,7 @@
     </section>
   </div>
 
-  <script type="module" src="js/main.js"></script>
+  <!-- ?v= 보조 캐시 깨기. 근본 대책은 run.bat → serve.py(JS no-store). 모듈 수정 후에도 export 에러면 서버 재시작 + 이 버전 숫자 증가 -->
+  <script type="module" src="js/main.js?v=0.1.30"></script>
 </body>
 </html>
