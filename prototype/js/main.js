@@ -649,7 +649,7 @@ async function boot() {
 
   void preloadAudio();
 
-  console.log('[Orchestration] v0.1.39 — coin toss panel button', {
+  console.log('[Orchestration] v0.1.42 — external share', {
     state,
     save,
     balance: formatBalanceMeta(),

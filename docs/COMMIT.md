@@ -114,7 +114,8 @@ refactor(ai): 상대 조정·허세 결정을 한 계획으로 통합
 
 ## 버전·패치노트와의 관계
 
-상세 규칙: [`patch-note/internal/README.md`](./patch-note/internal/README.md) (버전 규칙).
+- 정책: [`patch-note/internal/README.md`](./patch-note/internal/README.md)  
+- **올릴 때 체크리스트:** [`patch-note/VERSION.md`](./patch-note/VERSION.md)
 
 - **내부** (프로그래머): 의미 있는 변경마다 `docs/patch-note/internal/0.1.xx.md`를 **새로** 작성합니다. 이미 공유된 버전에 이후 작업을 덮어쓰지 않습니다.
 - **외부** (공유): **배포 시에만** `docs/patch-note/external/0.1.yy.md`를 씁니다. 본문은 **직전 외부 공유본** 대비 플레이어 체감만 모읍니다.

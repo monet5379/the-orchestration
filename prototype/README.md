@@ -1,7 +1,7 @@
 # The Orchestration — HTML Prototype
 
 1:1 턴제 심리 스릴러 로그라이크 HTML 프로토타입.  
-**현재 버전: v0.1.30** (Step 0~6 완료)
+**현재 버전: v0.1.42**
 
 버전별 변경·수동 테스트 이력 → [`ARCHIVE.md`](./ARCHIVE.md)  
 공유용 패치노트 → [`../docs/patch-note/external/0.1.42.md`](../docs/patch-note/external/0.1.42.md)  
