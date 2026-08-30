@@ -171,10 +171,10 @@ SELECT ──→ REVEAL ──→ ADJUST ──→ RESOLVE
 ## 5. 게임 상태 모델
 
 ```javascript
-// game/state.js — 개념
+// game/state.js — 개념 (매치 중 예시)
 {
   scene: 'match',           // menu | match | cell | gameover
-  phase: 'ADJUST',
+  phase: 'ADJUST',          // 메뉴 씬에서는 PHASE.MENU (SELECT와 분리)
   turn: 3,
   winner: null,             // 'player' | 'opponent'
 
@@ -275,7 +275,7 @@ SELECT ──→ REVEAL ──→ ADJUST ──→ RESOLVE
 |---|---|---|
 | `START_MATCH` | [이어하기] / [새 게임] / [다시 하기] | match, SELECT, turn 1 |
 | `START_NEXT_MATCH` | 독방 [다음 상대] | 장착 가면 적용 + 새 CPU 가면 |
-| `LEAVE_CELL` / `RETURN_TO_MENU` | [타이틀] | menu (`phase: null`) |
+| `LEAVE_CELL` / `RETURN_TO_MENU` | [타이틀] | menu (`phase: MENU`) |
 | `FORCE_WIN` / `FORCE_LOSE` | 개발자 모드 치트 | 페널티 3/3 → cell / gameover |
 | `SELECT_MOVE` + `COMMIT_SELECT` | R/P/S + 0.5s | REVEAL |
 | `ENTER_ADJUST` | REVEAL 후 | ADJUST |
@@ -327,7 +327,7 @@ TIE 아이템(`instinct` / `time_warp` / `rule_break`)은 **1턴**, 가면은 **
 
 ### 남은 과제 (선택)
 
-- [ ] Playwright 안정화 (`smoke-menu.mjs` — ready 대기 권장)
+- [ ] Playwright 스모크: `tests/smoke-menu.mjs` (새 게임 → SELECT 타이머)
 - [ ] 독방 꾸미기 / 메타 로어 / 탈옥 엔딩
 - [ ] 멀티플레이 PvP
 

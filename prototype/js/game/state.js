@@ -21,8 +21,8 @@ export function createCombatant() {
 export function createInitialState() {
   return {
     scene: SCENE.MENU,
-    // 메뉴는 SELECT가 아님 — 타이틀→매치 시 phase 전환으로 beginSelectPhase가 반드시 돌게 함
-    phase: null,
+    // MENU ≠ SELECT — 타이틀에서 START_MATCH 시 phase 전환으로 SELECT 부트가 스킵되지 않게 함
+    phase: PHASE.MENU,
     turn: 0,
     player: createCombatant(),
     opponent: createCombatant(),

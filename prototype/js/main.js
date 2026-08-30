@@ -132,14 +132,15 @@ function dispatch(action) {
  * @param {string} prevPhase
  */
 function schedulePhaseTransitions(lastActionType, prevPhase) {
-  // 메뉴 state phase는 SELECT가 아님. 타이틀→매치는 START_* 또는 phase 진입으로 SELECT 부트.
-  if (state.phase === PHASE.SELECT) {
-    const startedMatch =
-      lastActionType === 'START_MATCH' || lastActionType === 'START_NEXT_MATCH';
-    const enteredSelect = prevPhase !== PHASE.SELECT;
-    if (startedMatch || enteredSelect) {
-      beginSelectPhase();
-    }
+  // 턴 중 SELECT 재진입만 여기서 부트.
+  // 매치 시작(START_*)은 startMatch / onNextMatch에서 beginSelectPhase를 직접 호출한다.
+  if (
+    state.phase === PHASE.SELECT &&
+    prevPhase !== PHASE.SELECT &&
+    lastActionType !== 'START_MATCH' &&
+    lastActionType !== 'START_NEXT_MATCH'
+  ) {
+    beginSelectPhase();
   }
 
   if (state.phase === PHASE.REVEAL && lastActionType === 'COMMIT_SELECT') {
@@ -339,6 +340,10 @@ function startMatch() {
     opponentMaskId: pickOpponentMask(save.masks.unlocked),
     equippedMaskId: save.masks.equipped,
   });
+  // 타이틀→매치 SELECT 부트는 스케줄러 phase 비교에 의존하지 않고 여기서 명시 호출
+  if (state.phase === PHASE.SELECT) {
+    beginSelectPhase();
+  }
 }
 
 function continueMatch() {
@@ -369,6 +374,9 @@ function onNextMatch() {
   clearAllTimers();
   resetCeilingScreen();
   dispatch({ type: 'START_NEXT_MATCH', save });
+  if (state.phase === PHASE.SELECT) {
+    beginSelectPhase();
+  }
 }
 
 function onLeaveCell() {

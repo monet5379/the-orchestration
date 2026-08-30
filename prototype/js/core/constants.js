@@ -9,6 +9,8 @@ export const MOVE = {
 
 /** @enum {string} */
 export const PHASE = {
+  /** 타이틀/메뉴 — 매치 SELECT와 구분 (부트 스케줄 재발 방지) */
+  MENU: 'MENU',
   SELECT: 'SELECT',
   REVEAL: 'REVEAL',
   ADJUST: 'ADJUST',
@@ -33,6 +35,7 @@ export const MAX_PENALTIES = 3;
 export const TIME_WARP_BONUS_MS = 2000;
 
 export const PHASE_LABEL = {
+  MENU: '메뉴',
   SELECT: '패 선택',
   REVEAL: '상황 공개',
   ADJUST: '수정 페이즈',
