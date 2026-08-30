@@ -1,14 +1,16 @@
-import { PHASE, SCENE, ADJUST_DURATION_MS } from '../core/constants.js';
+import { PHASE, SCENE } from '../core/constants.js';
+import { getBalance } from '../core/balance.js';
 import { createReplayState } from './replay.js';
 
 /**
  * @returns {object}
  */
 export function createCombatant() {
+  const { match } = getBalance();
   return {
     choice: null,
     finalChoice: null,
-    resources: { changes: 2, bluffs: 1 },
+    resources: { changes: match.startChanges, bluffs: match.startBluffs },
     penalties: 0,
     activeItem: null,
     items: [],
@@ -33,7 +35,7 @@ export function createInitialState() {
     cpuBluffedThisTurn: false,
     /** @type {null | 'kept' | 'changed' | 'bluffed'} 상대 ADJUST 버튼 (진실값; UI는 본능/가면 여부로 위장) */
     opponentButtonHint: null,
-    adjustTimerMs: ADJUST_DURATION_MS,
+    adjustTimerMs: getBalance().timers.adjustMs,
     tieItems: [],
     tieItemsRemaining: [],
     tieLootSelection: null,
@@ -64,7 +66,7 @@ export function createMatchState(options = {}) {
     cpuBluffedThisTurn: false,
     /** @type {null | 'kept' | 'changed' | 'bluffed'} */
     opponentButtonHint: null,
-    adjustTimerMs: ADJUST_DURATION_MS,
+    adjustTimerMs: getBalance().timers.adjustMs,
     tieItems: [],
     tieItemsRemaining: [],
     tieLootSelection: null,

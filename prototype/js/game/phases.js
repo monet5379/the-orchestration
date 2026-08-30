@@ -1,4 +1,5 @@
-import { PHASE, SCENE, MAX_PENALTIES } from '../core/constants.js';
+import { PHASE, SCENE } from '../core/constants.js';
+import { getBalance } from '../core/balance.js';
 import { getPartialResult, resolveRps } from './rps.js';
 import { pickInitialChoice, pickTieItem, pickOpponentMask } from '../ai/opponent.js';
 import { canChange, spendChange, canBluff, spendBluff, getAdjustDurationMs } from './resources.js';
@@ -217,7 +218,7 @@ export function reducePhase(state, action) {
       if (!isActiveMatch(state)) return state;
       const opponent = {
         ...state.opponent,
-        penalties: MAX_PENALTIES,
+        penalties: getBalance().match.maxPenalties,
       };
       const withPenalties = {
         ...state,
@@ -254,7 +255,7 @@ export function reducePhase(state, action) {
       if (!isActiveMatch(state)) return state;
       const player = {
         ...state.player,
-        penalties: MAX_PENALTIES,
+        penalties: getBalance().match.maxPenalties,
       };
       return appendLogAndReplay(
         {

@@ -1,4 +1,11 @@
-import { MAX_PENALTIES } from '../core/constants.js';
+import { getBalance } from '../core/balance.js';
+
+/**
+ * @returns {number}
+ */
+function maxPenalties() {
+  return getBalance().match.maxPenalties;
+}
 
 /**
  * @param {object} combatant
@@ -16,7 +23,7 @@ export function applyPenalty(combatant) {
  * @returns {boolean}
  */
 export function isDefeated(combatant) {
-  return combatant.penalties >= MAX_PENALTIES;
+  return combatant.penalties >= maxPenalties();
 }
 
 /**
@@ -24,7 +31,7 @@ export function isDefeated(combatant) {
  * @returns {string}
  */
 export function formatPenalties(combatant) {
-  return `${combatant.penalties}/${MAX_PENALTIES}`;
+  return `${combatant.penalties}/${maxPenalties()}`;
 }
 
 /**
@@ -32,7 +39,7 @@ export function formatPenalties(combatant) {
  * @param {number} [max]
  * @returns {string}
  */
-export function renderPenaltyPips(count, max = MAX_PENALTIES) {
+export function renderPenaltyPips(count, max = maxPenalties()) {
   return Array.from({ length: max }, (_, i) => {
     const filled = i < count ? ' pip--filled' : '';
     return `<span class="pip${filled}"></span>`;
@@ -44,6 +51,6 @@ export function renderPenaltyPips(count, max = MAX_PENALTIES) {
  * @param {number} [max]
  * @returns {boolean}
  */
-export function isPenaltyWarn(count, max = MAX_PENALTIES) {
+export function isPenaltyWarn(count, max = maxPenalties()) {
   return count === max - 1 && count > 0;
 }

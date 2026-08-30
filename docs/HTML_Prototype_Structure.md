@@ -1,7 +1,9 @@
 # The Orchestration — HTML 프로토타입 구조
 
 > **목적:** 핵심 게임 루프(1:1 턴제 심리전 + 5초 블러핑)와 로그라이크 메타(독방·가면·VHS)를 검증하기 위한 바닐라 HTML/JS 프로토타입  
-> **프로토타입 버전:** **v0.1.30** (Step 0~6 완료)  
+> **프로토타입 버전:** **v0.1.31** (Step 0~6 완료 · 밸런스 `balance.js`)  
+> **직전 공유:** v0.1.30  
+
 > **관련 기획:** [The_Orchestration_Game_Proposal.pptx.txt](./The_Orchestration_Game_Proposal.pptx.txt)  
 > **기획 vs 프로토타입:** [Proposal_vs_Prototype.md](./Proposal_vs_Prototype.md)
 
@@ -53,8 +55,9 @@ the-orchestration/
     ├── js/
     │   ├── main.js            # dispatch, 타이머, boot, save I/O
     │   ├── core/
-    │   │   ├── constants.js
-    │   │   ├── timing.js
+    │   │   ├── balance.js     # ★ 기획 수치 BALANCE_DEFAULTS · getBalance()
+    │   │   ├── constants.js   # MOVE / PHASE / SCENE / PHASE_LABEL
+    │   │   ├── timing.js      # 연출 딜레이 (REVEAL/RESOLVE/COMMIT)
     │   │   ├── event-bus.js   # stub
     │   │   ├── save-schema.js # 메타 세이브 스키마
     │   │   └── storage.js     # localStorage load/persist/clear · 세이브 요약
@@ -120,9 +123,12 @@ the-orchestration/
                   │
 ┌─────────────────▼───────────────────────┐
 │  core/                                  │
-│  Constants · Timing · Storage · Schema  │
+│  Balance · Constants · Timing · Storage │
 └─────────────────────────────────────────┘
 ```
+
+타이머·페널티·시작 자원·AI 확률은 `getBalance()` (`balance.js`).  
+`constants.js`는 enum·라벨, `timing.js`는 연출용 딜레이만 담당.
 
 ---
 
@@ -358,6 +364,6 @@ ES Module·SFX fetch를 위해 **정적 서버 사용을 권장** (`file://` 비
 
 ---
 
-*문서 버전: 0.1.30 · 2026-08-30 · SELECT 60s · ADJUST 15s · commit-once · button hints · launcher*  
+*문서 버전: 0.1.31 · 2026-08-30 · balance.js 일원화 · SELECT 60s · ADJUST 15s · commit-once · launcher*  
 *프로토타입 이력: [`../prototype/ARCHIVE.md`](../prototype/ARCHIVE.md)*
 

@@ -37,7 +37,7 @@
 | 5초 수정 페이즈 | ADJUST + 게이지·카운트다운 (**15s**, 시간 팽창 +2s) |
 | 한정 자원으로 패 수정 | 수정권 (기본 2, 가면으로 +1 가능) |
 | 페이크 블러핑 (소리·연출) | `[페이크]` 자원 소모 · **상대 페이크**만 `audio.js` + POV 플래시 (내 수정·페이크는 무연출) |
-| 패배 시 형벌 누적 (3회) | `penalties: 0→3`, `MAX_PENALTIES = 3` |
+| 패배 시 형벌 누적 (3회) | `penalties: 0→3`, `getBalance().match.maxPenalties` (`balance.js`) |
 | 무승부 → 테이블 아이템 | `TIE_LOOT` + `#tie-loot-panel` |
 | 「본능」「시간 팽창」 등 룰 왜곡 | instinct / time_warp / **rule_break** (1턴) |
 | 1:1 대전 | CPU (`ai/opponent.js`) |

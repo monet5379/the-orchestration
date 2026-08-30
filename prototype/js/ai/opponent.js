@@ -1,4 +1,5 @@
 import { MOVE } from '../core/constants.js';
+import { getBalance } from '../core/balance.js';
 import { ALL_MASK_IDS } from '../game/masks.js';
 
 /** @typedef {import('../core/constants.js').Move} Move */
@@ -27,10 +28,14 @@ export function pickDifferentMove(current) {
  * @returns {boolean}
  */
 export function decideAdjust(state) {
+  const { ai } = getBalance();
   if (state.partialResult === 'draw') {
-    return Math.random() > 0.75;
+    return Math.random() < ai.adjustChanceOnDraw;
   }
-  return state.partialResult === 'winner_exists' && Math.random() > 0.45;
+  return (
+    state.partialResult === 'winner_exists' &&
+    Math.random() < ai.adjustChanceWhenWinner
+  );
 }
 
 /**
@@ -79,7 +84,7 @@ export function planCpuAdjustAction(state) {
  */
 export function maybeBluff(state) {
   if (state.opponent.resources.bluffs <= 0) return false;
-  return Math.random() > 0.55;
+  return Math.random() < getBalance().ai.bluffChance;
 }
 
 /**

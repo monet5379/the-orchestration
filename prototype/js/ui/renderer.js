@@ -1,4 +1,5 @@
-import { PHASE, SCENE, MAX_PENALTIES } from '../core/constants.js';
+import { PHASE, SCENE } from '../core/constants.js';
+import { getBalance } from '../core/balance.js';
 import { ITEM, getInstinctDisplayHtml, getPublicOpponentButtonText } from '../game/items.js';
 import { isMaskInstinctActive, getMaskInstinctDisplayHtml } from '../game/masks.js';
 import { renderCeilingScreen } from './ceiling-screen.js';
@@ -276,9 +277,10 @@ function formatResolveLine(state) {
     const next = projected
       ? state.player.penalties + 1
       : state.player.penalties;
-    const suffix = ` · 페널티 +1 (${next}/${MAX_PENALTIES})`;
+    const max = getBalance().match.maxPenalties;
+    const suffix = ` · 페널티 +1 (${next}/${max})`;
     const warn =
-      next === MAX_PENALTIES - 1 ? ' · 한 번 더 패배하면 종료' : '';
+      next === max - 1 ? ' · 한 번 더 패배하면 종료' : '';
     return base + suffix + warn;
   }
 
@@ -286,7 +288,8 @@ function formatResolveLine(state) {
     const next = projected
       ? state.opponent.penalties + 1
       : state.opponent.penalties;
-    return `${base} · CPU 페널티 +1 (${next}/${MAX_PENALTIES})`;
+    const max = getBalance().match.maxPenalties;
+    return `${base} · CPU 페널티 +1 (${next}/${max})`;
   }
 
   return base;

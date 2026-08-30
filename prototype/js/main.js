@@ -5,9 +5,8 @@ import {
   REVEAL_DELAY_MS,
   RESOLVE_DELAY_MS,
   SELECT_COMMIT_DELAY_MS,
-  ADJUST_DURATION_MS,
-  SELECT_DURATION_MS,
 } from './core/timing.js';
+import { getBalance } from './core/balance.js';
 import { MOVE } from './core/constants.js';
 // named export는 해당 모듈과 동기화. 불일치 시 SyntaxError로 boot 전체가 죽고 타이틀이 먹통처럼 보임.
 // 개발 중 캐시 재발 방지: run.bat → serve.py(no-store). ?v=는 보조 수단.
@@ -181,7 +180,7 @@ function maybeAdvanceAdjustEarly() {
 }
 
 function beginSelectPhase() {
-  const duration = SELECT_DURATION_MS;
+  const duration = getBalance().timers.selectMs;
   const buttonPanel = document.getElementById('button-panel');
   const timerEl = buttonPanel ? getAdjustTimerElement(buttonPanel) : null;
 
@@ -224,7 +223,7 @@ function onSelectTimeout() {
 }
 
 function beginAdjustPhase() {
-  const duration = state.adjustTimerMs ?? ADJUST_DURATION_MS;
+  const duration = state.adjustTimerMs ?? getBalance().timers.adjustMs;
   const buttonPanel = document.getElementById('button-panel');
   const timerEl = buttonPanel ? getAdjustTimerElement(buttonPanel) : null;
 
@@ -247,10 +246,13 @@ function beginAdjustPhase() {
 
   // 최종 행동(유지|바꾸기|페이크)을 먼저 정한 뒤 한 번만 커밋 → 안내 덮어쓰기 방지
   const plan = planCpuAdjustAction(state);
-  const cpuDelay =
-    1000 +
-    Math.random() * 3000 +
-    (plan.kind === 'bluffed' ? 300 + Math.random() * 800 : 0);
+  const { ai } = getBalance();
+  const adjustSpan = ai.adjustDelayMaxMs - ai.adjustDelayMinMs;
+  const bluffSpan = ai.bluffDelayMaxMs - ai.bluffDelayMinMs;
+  let cpuDelay = ai.adjustDelayMinMs + Math.random() * adjustSpan;
+  if (plan.kind === 'bluffed') {
+    cpuDelay += ai.bluffDelayMinMs + Math.random() * bluffSpan;
+  }
 
   trackTimer(
     setTimeout(() => {
