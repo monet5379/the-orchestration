@@ -52,6 +52,28 @@ export function planCpuAdjust(state) {
 }
 
 /**
+ * ADJUST 최종 행동을 한 번에 결정 (유지 | 바꾸기 | 페이크).
+ * 바꾸기와 페이크는 동시에 나오지 않음.
+ *
+ * main.js가 named import 함 — rename/삭제 시 import도 같이 맞출 것.
+ * export 누락 시 모듈 로드 실패 → boot 미실행 → 타이틀 버튼이 먹통처럼 보임.
+ * opponent.js를 바꾼 뒤에는 main.js의 import `?v=`도 올리거나, run.bat(serve.py no-store)로 서버를 쓴다.
+ *
+ * @param {object} state
+ * @returns {{ kind: 'kept' } | { kind: 'changed', move: Move } | { kind: 'bluffed' }}
+ */
+export function planCpuAdjustAction(state) {
+  const adjust = planCpuAdjust(state);
+  if (adjust.changed && adjust.move) {
+    return { kind: 'changed', move: adjust.move };
+  }
+  if (maybeBluff(state)) {
+    return { kind: 'bluffed' };
+  }
+  return { kind: 'kept' };
+}
+
+/**
  * @param {object} state
  * @returns {boolean}
  */

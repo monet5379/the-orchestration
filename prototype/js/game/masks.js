@@ -1,7 +1,7 @@
 /** v2: mask collection and passive abilities */
 
 import { PHASE } from '../core/constants.js';
-import { INSTINCT_READING } from './items.js';
+import { getOpponentButtonMessage } from './items.js';
 
 /** @enum {string} */
 export const MASK = {
@@ -35,7 +35,7 @@ export const MASK_INFO = {
     label: '엑스 가면',
     doodle: '×',
     ability: 'instinct_hint',
-    desc: '첫 수정 페이즈에서 상대가 <strong>실제로 패를 변경</strong>했는지 <strong>페이크</strong>를 썼는지 정확히 알려 줍니다.',
+    desc: '첫 수정 페이즈에서 상대가 <strong>유지</strong>·<strong>바꾸기</strong>·<strong>페이크</strong> 중 어떤 버튼을 눌렀는지 정확히 알려 줍니다.',
   },
 };
 
@@ -93,13 +93,7 @@ export function isMaskInstinctActive(state) {
  * @returns {string}
  */
 export function getMaskInstinctLogMessage(reading) {
-  if (reading === INSTINCT_READING.CHANGED) {
-    return '[가면] 패를 변경했습니다.';
-  }
-  if (reading === INSTINCT_READING.BLUFFED) {
-    return '[가면] 페이크를 사용했습니다.';
-  }
-  return '[가면] 패를 유지합니다.';
+  return `[가면] ${getOpponentButtonMessage(reading)}`;
 }
 
 /**
@@ -107,11 +101,5 @@ export function getMaskInstinctLogMessage(reading) {
  * @returns {string}
  */
 export function getMaskInstinctDisplayHtml(reading) {
-  const message =
-    reading === INSTINCT_READING.CHANGED
-      ? '패를 변경했습니다.'
-      : reading === INSTINCT_READING.BLUFFED
-        ? '페이크를 사용했습니다.'
-        : '패를 유지합니다.';
-  return `<span class="instinct-reading">[가면] ${message}</span>`;
+  return `<span class="instinct-reading">[가면] ${getOpponentButtonMessage(reading)}</span>`;
 }

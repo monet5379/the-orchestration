@@ -9,8 +9,9 @@ import {
   SELECT_DURATION_MS,
 } from './core/timing.js';
 import { MOVE } from './core/constants.js';
-import { planCpuAdjust, maybeBluff, pickOpponentMask } from './ai/opponent.js';
-import { didOpponentChange } from './game/items.js';
+// named export는 해당 모듈과 동기화. 불일치 시 SyntaxError로 boot 전체가 죽고 타이틀이 먹통처럼 보임.
+// 개발 중 캐시 재발 방지: run.bat → serve.py(no-store). ?v=는 보조 수단.
+import { planCpuAdjustAction, pickOpponentMask } from './ai/opponent.js?v=0.1.30';
 import { isMatchActive } from './scenes/match.js';
 import {
   persistVictory,
@@ -20,7 +21,7 @@ import {
 import { loadOrCreateSave, clearSave, hasSaveProgress } from './core/storage.js';
 import { initButtonPanel, getAdjustTimerElement } from './ui/button-panel.js';
 import { initTieLootPanel } from './ui/tie-loot-panel.js';
-import { initOverlay } from './ui/overlay.js';
+import { initOverlay, setNewGameConfirmVisible } from './ui/overlay.js?v=0.1.30';
 import { render, setEquipMaskHandler } from './ui/renderer.js';
 import { startAdjustCountdown, stopCountdown } from './ui/countdown.js';
 import { preloadAudio, playBluffClick, playMetalClick } from './ui/audio.js';
@@ -99,6 +100,10 @@ function dispatch(action) {
     playBluffClick();
     flashPovBluff();
   }
+  if (action.type === 'CPU_ADJUST' && action.move) {
+    playBluffClick();
+    flashPovBluff();
+  }
   if (action.type === 'SELECT_MOVE' && prevPhase === PHASE.SELECT) {
     playMetalClick();
     flashPovBluff();
@@ -127,8 +132,14 @@ function dispatch(action) {
  * @param {string} prevPhase
  */
 function schedulePhaseTransitions(lastActionType, prevPhase) {
-  if (state.phase === PHASE.SELECT && prevPhase !== PHASE.SELECT) {
-    beginSelectPhase();
+  // 메뉴 state phase는 SELECT가 아님. 타이틀→매치는 START_* 또는 phase 진입으로 SELECT 부트.
+  if (state.phase === PHASE.SELECT) {
+    const startedMatch =
+      lastActionType === 'START_MATCH' || lastActionType === 'START_NEXT_MATCH';
+    const enteredSelect = prevPhase !== PHASE.SELECT;
+    if (startedMatch || enteredSelect) {
+      beginSelectPhase();
+    }
   }
 
   if (state.phase === PHASE.REVEAL && lastActionType === 'COMMIT_SELECT') {
@@ -233,34 +244,26 @@ function beginAdjustPhase() {
     );
   }
 
-  const cpuDelay = 1000 + Math.random() * 3000;
+  // 최종 행동(유지|바꾸기|페이크)을 먼저 정한 뒤 한 번만 커밋 → 안내 덮어쓰기 방지
+  const plan = planCpuAdjustAction(state);
+  const cpuDelay =
+    1000 +
+    Math.random() * 3000 +
+    (plan.kind === 'bluffed' ? 300 + Math.random() * 800 : 0);
+
   trackTimer(
     setTimeout(() => {
       if (!isMatchActive(state) || state.phase !== PHASE.ADJUST || state.cpuAdjusted) {
         return;
       }
 
-      const plan = planCpuAdjust(state);
-      if (plan.changed && plan.move) {
+      if (plan.kind === 'changed') {
         dispatch({ type: 'CPU_ADJUST', move: plan.move });
+      } else if (plan.kind === 'bluffed') {
+        dispatch({ type: 'CPU_BLUFF' });
       } else {
         dispatch({ type: 'CPU_ADJUST', kept: true });
       }
-
-      if (!isMatchActive(state) || state.phase !== PHASE.ADJUST) {
-        return;
-      }
-
-      const bluffDelay = 300 + Math.random() * 800;
-      trackTimer(
-        setTimeout(() => {
-          if (!isMatchActive(state) || state.phase !== PHASE.ADJUST) return;
-          if (didOpponentChange(state.opponent)) return;
-          if (maybeBluff(state)) {
-            dispatch({ type: 'CPU_BLUFF' });
-          }
-        }, bluffDelay),
-      );
     }, cpuDelay),
   );
 }
@@ -344,14 +347,22 @@ function continueMatch() {
 }
 
 function newGame() {
+  // window.confirm 대신 인라인 확인 — 일부 환경에서 confirm이 즉시 false가 되어 매치 시작이 막힘
   if (hasSaveProgress(save)) {
-    const ok = window.confirm(
-      '가면과 전적이 모두 삭제됩니다. 새 게임을 시작할까요?',
-    );
-    if (!ok) return;
+    setNewGameConfirmVisible(true);
+    return;
   }
+  beginFreshGame();
+}
+
+function beginFreshGame() {
+  setNewGameConfirmVisible(false);
   save = clearSave();
   startMatch();
+}
+
+function cancelNewGameConfirm() {
+  setNewGameConfirmVisible(false);
 }
 
 function onNextMatch() {
@@ -397,6 +408,8 @@ async function boot() {
   initOverlay({
     onContinue: continueMatch,
     onNewGame: newGame,
+    onNewGameConfirm: beginFreshGame,
+    onNewGameCancel: cancelNewGameConfirm,
     onRestart: startMatch,
   });
 
@@ -449,7 +462,10 @@ async function boot() {
 
   void preloadAudio();
 
-  console.log('[Orchestration] v0.1.29 — ADJUST commit-once · early resolve', { state, save });
+  console.log('[Orchestration] v0.1.30 — ADJUST 15s · button hints · launcher', {
+    state,
+    save,
+  });
 }
 
 boot();

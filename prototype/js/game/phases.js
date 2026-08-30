@@ -106,7 +106,7 @@ function advanceToNextTurn(state, player, opponent) {
       cpuAdjusted: false,
       playerAdjusted: false,
       cpuBluffedThisTurn: false,
-      instinctReading: null,
+      opponentButtonHint: null,
       tieItemsRemaining: [],
       tieLootSelection: null,
       player: resetCombatantChoice(player),
@@ -129,15 +129,15 @@ const PARTIAL_LABEL = {
 };
 
 /**
+ * CPU ADJUST 확정 시 상대 버튼 힌트를 항상 기록.
+ * 본능·가면이 있을 때만 정확 감지 로그를 남긴다.
  * @param {object} state
  * @param {object} opponent
  * @param {boolean} cpuBluffedThisTurn
  * @returns {object}
  */
-function applyInstinctUpdate(state, opponent, cpuBluffedThisTurn) {
-  const hasInstinct = state.player.activeItem === ITEM.INSTINCT;
-  const hasMaskHint = isMaskInstinctActive(state);
-  if ((!hasInstinct && !hasMaskHint) || state.phase !== PHASE.ADJUST) {
+function applyOpponentButtonHint(state, opponent, cpuBluffedThisTurn) {
+  if (state.phase !== PHASE.ADJUST) {
     return { ...state, opponent, cpuBluffedThisTurn };
   }
   if (!state.cpuAdjusted && !cpuBluffedThisTurn) {
@@ -145,14 +145,23 @@ function applyInstinctUpdate(state, opponent, cpuBluffedThisTurn) {
   }
 
   const reading = getInstinctItemReading(opponent, cpuBluffedThisTurn);
-  if (reading === state.instinctReading) {
+  // 최종 행동 1회 커밋 — 이미 안내가 있으면 덮어쓰지 않음
+  if (state.opponentButtonHint) {
     return { ...state, opponent, cpuBluffedThisTurn };
   }
 
-  let next = { ...state, opponent, cpuBluffedThisTurn, instinctReading: reading };
+  let next = {
+    ...state,
+    opponent,
+    cpuBluffedThisTurn,
+    opponentButtonHint: reading,
+  };
+
+  const hasInstinct = state.player.activeItem === ITEM.INSTINCT;
+  const hasMaskHint = isMaskInstinctActive(state);
   if (hasInstinct) {
     next = appendLog(next, getInstinctLogMessage(reading));
-  } else {
+  } else if (hasMaskHint) {
     next = appendLog(next, getMaskInstinctLogMessage(reading));
   }
   return next;
@@ -304,7 +313,7 @@ export function reducePhase(state, action) {
           cpuAdjusted: false,
           playerAdjusted: false,
           cpuBluffedThisTurn: false,
-          instinctReading: null,
+          opponentButtonHint: null,
           opponent: {
             ...state.opponent,
             choice: cpuMove,
@@ -413,7 +422,7 @@ export function reducePhase(state, action) {
       if (!action.move && !action.kept) return state;
 
       if (action.kept) {
-        return applyInstinctUpdate(
+        return applyOpponentButtonHint(
           appendLogAndReplay(
             { ...state, cpuAdjusted: true },
             '[ADJUST] cpu: (hidden) kept',
@@ -433,7 +442,7 @@ export function reducePhase(state, action) {
         finalChoice: action.move,
       });
 
-      return applyInstinctUpdate(
+      return applyOpponentButtonHint(
         appendLogAndReplay(
           { ...state, opponent, cpuAdjusted: true },
           '[ADJUST] cpu: (hidden) changed',
@@ -456,9 +465,14 @@ export function reducePhase(state, action) {
       if (didOpponentChange(state.opponent)) return state;
 
       const opponent = spendBluff(state.opponent);
-      return applyInstinctUpdate(
+      return applyOpponentButtonHint(
         appendLogAndReplay(
-          { ...state, opponent, cpuAdjusted: true, cpuBluffedThisTurn: true },
+          {
+            ...state,
+            opponent,
+            cpuAdjusted: true,
+            cpuBluffedThisTurn: true,
+          },
           '[BLUFF] cpu: (hidden) fake',
           { kind: 'bluff', actor: 'cpu', hidden: true, payload: {} },
         ),
@@ -480,7 +494,7 @@ export function reducePhase(state, action) {
       const next = {
         ...state,
         phase: PHASE.RESOLVE,
-        instinctReading: null,
+        opponentButtonHint: null,
         player,
         opponent,
         lastResolve: {
@@ -617,7 +631,7 @@ export function reducePhase(state, action) {
             tieItemsRemaining,
             tieLootSelection: tieItemsRemaining[0],
             lastResolve: state.lastResolve,
-            instinctReading: null,
+            opponentButtonHint: null,
             cpuBluffedThisTurn: false,
             player: clearActiveItem(player),
             opponent: clearActiveItem(opponent),

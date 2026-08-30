@@ -48,7 +48,7 @@ export function renderPovViewport(viewport, state) {
   viewport.classList.toggle('is-resolve', state.phase === PHASE.RESOLVE);
 }
 
-/** 상대 페이크·SELECT 입력 시 렌즈 플래시 (플레이어 ADJUST 수정/페이크는 무음·무플래시) */
+/** 상대 페이크·변경·SELECT 입력 시 렌즈 플래시 (플레이어 ADJUST 수정/페이크는 무음·무플래시) */
 export function flashPovBluff() {
   const viewport = document.getElementById('pov-viewport');
   if (!viewport) return;

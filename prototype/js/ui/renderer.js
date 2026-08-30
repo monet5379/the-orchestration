@@ -1,5 +1,5 @@
 import { PHASE, SCENE, MAX_PENALTIES } from '../core/constants.js';
-import { ITEM, getInstinctDisplayHtml } from '../game/items.js';
+import { ITEM, getInstinctDisplayHtml, getPublicOpponentButtonText } from '../game/items.js';
 import { isMaskInstinctActive, getMaskInstinctDisplayHtml } from '../game/masks.js';
 import { renderCeilingScreen } from './ceiling-screen.js';
 import { renderHud } from './hud.js';
@@ -206,24 +206,34 @@ function renderPlayerDisplay(state) {
     if (initial && current !== initial) {
       statusLine = `수정: ${MOVE_LABELS[initial]} → ${MOVE_LABELS[current]}`;
     } else if (current) {
-      statusLine = `현재: ${MOVE_LABELS[current]} (유지·변경·페이크)`;
+      statusLine = `현재: ${MOVE_LABELS[current]}`;
     }
 
     const maskActive = isMaskInstinctActive(state);
-    if (maskActive && state.player.activeItem !== ITEM.INSTINCT) {
-      const hint = state.instinctReading
-        ? getMaskInstinctDisplayHtml(state.instinctReading)
-        : '<span class="instinct-reading instinct-reading--pending">[가면] 감지 중…</span>';
-      return { html: `${hint}<br>${statusLine}` };
-    }
-
     if (state.player.activeItem === ITEM.INSTINCT) {
-      const hint = state.instinctReading
-        ? getInstinctDisplayHtml(state.instinctReading)
+      const hint = state.opponentButtonHint
+        ? getInstinctDisplayHtml(state.opponentButtonHint)
         : '<span class="instinct-reading instinct-reading--pending">[본능] 감지 중…</span>';
-      return { html: `${hint}<br>${statusLine}` };
+      return { html: statusLine ? `${hint}<br>${statusLine}` : hint };
     }
 
+    if (maskActive) {
+      const hint = state.opponentButtonHint
+        ? getMaskInstinctDisplayHtml(state.opponentButtonHint)
+        : '<span class="instinct-reading instinct-reading--pending">[가면] 감지 중…</span>';
+      return { html: statusLine ? `${hint}<br>${statusLine}` : hint };
+    }
+
+    const pressedNote = state.opponentButtonHint
+      ? getPublicOpponentButtonText(state.opponentButtonHint)
+      : '';
+
+    if (pressedNote && statusLine) {
+      return { html: `${pressedNote}<br>${statusLine}` };
+    }
+    if (pressedNote) {
+      return { text: pressedNote };
+    }
     if (statusLine) {
       return { text: statusLine };
     }
